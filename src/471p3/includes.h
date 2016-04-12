@@ -1,0 +1,27 @@
+#pragma once
+
+#include <stdio.h>
+#include <tchar.h>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <limits>
+#include <tuple>
+#include <ctype.h>
+#include <stack>       
+#include <deque>   
+#include <ctype.h>
+#include <stdio.h>
+#include <tchar.h>
+#include <string.h>
+#include <iostream>
+#include <fstream>
+#include <vector>
+#include <sstream>
+#include <ctime>
+#include <stdlib.h> 
+#include <time.h> 
+#include <algorithm>
+#include <map>
