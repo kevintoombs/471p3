@@ -2,6 +2,14 @@
 
 #include "includes.h"
 
+struct config
+{
+	int matchScore = 0;
+	int mismatchScore = 0;
+	int startGapScore = 0; //h
+	int continueGapScore = 0; //g
+};
+
 class Alphabet
 {
 public:

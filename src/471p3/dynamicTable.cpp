@@ -2,36 +2,11 @@
 
 using namespace std;
 
-struct config
-{
-	int matchScore = 0;
-	int mismatchScore = 0;
-	int startGapScore = 0; //h
-	int continueGapScore = 0; //g
-};
-
-struct DP_cell
-{
-	int S = -1147483648;// numeric_limits<int>::min();
-	int D = -1147483648;// numeric_limits<int>::min();
-	int I = -1147483648;// numeric_limits<int>::min();
-	int sDir = -1, dDir = -1, iDir = -1;
-};
-
-struct DP_table
-{
-	string sequence1, sequence2;
-	string id1, id2;
-	vector< vector<DP_cell> > t;
-	config c;
-	int alightmentType;
-	tuple<int, int> maxPair;
-};
 
 bool parseFasta(char *argv[], DP_table &t);
 config getConfig(int argc, char *argv[]);
 int getAlignmentType(int argc, char *argv[]);
-int main(int argc, char * argv[]);
+int demo(int argc, char * argv[]);
 void buildTable(DP_table &t);
 void initTable(DP_table &t);
 void calcTable(DP_table &t);
@@ -39,7 +14,9 @@ int maximum(int S, int D, int I, int alignmentType);
 int subFunction(char a, char b, config c);
 void printTable(DP_table &t);
 void retrace(DP_table &t);
+void recursivelyPrintChildren(DP_table &t, int i, int j);
 int direction(DP_table &t, int i, int j);
+int maximum2(DP_cell &c, int &mDir);
 int cellMax(DP_cell c);
 void testDirection(int lastValue, DP_cell to, config c, int dir, int i, int j, DP_table &t);
 int cellMax2(DP_cell &c, int find, int &mDir);
@@ -130,7 +107,7 @@ void calcTable(DP_table &t)
 			//		This means that usually the first input string is longer than the first. Because of that any insertions on 
 			//		String 1 (if it is longer) will have to be matched by AT LEAST 1 MORE DELETION from string 2 in a global alignment.
 			//		A shorter strings score still has to account for those empty, deleted, character... unless start gap penalties are nyah.
-			// Second: It's the last of 3 in a chain of horrible to read if else statements.
+			// Second: It's the last of 3 in a shitty chain of horrible to read if else statements.
 			// Third: my naming convention is just bad! I also should have kept ordering consitant. 
 			// Fourth: It really is just a rare call for the alignment. I can't imagine many cases where we wouldn't just be better off doing a mismatch in the 
 			//		first place. This is shown by the fact that it only caused the final number to be off by %10 in all of those calculations.
@@ -392,6 +369,26 @@ int maximum(int S, int D, int I, int alignmentType)
 	return max;
 }
 
+/*
+int maximum2(int S, int D, int I, int alignmentType, DP_cell &c)
+{
+int max = S;
+c.dir = 2;
+if (D > max)
+{
+max = D;
+c.dir = 3;
+}
+if (I > max)
+{
+max = I;
+c.dir = 1;
+}
+if (alignmentType == 1 && max < 0) max = 0;
+return max;
+}
+*/
+
 int subFunction(char a, char b, config c)
 {
 	if (a == b)
@@ -469,6 +466,70 @@ void retrace(DP_table &t)
 			DP_cell insertCell = t.t[i][j - 1];
 			break;
 		}
+
+		//dir = direction(t, i, j); // move to end
+		/*//DIRBLOCK
+		if (i != 0) //d
+		{
+		DP_cell deleteCell = t.t[i - 1][j];
+		int testValue1 = deleteCell.S + t.c.startGapScore + t.c.continueGapScore;
+		int testValue2 = deleteCell.D + t.c.continueGapScore;
+		int testValue3 = deleteCell.I + t.c.startGapScore + t.c.continueGapScore;
+
+		if (max == testValue1)
+		{
+		dir = 2;
+		}
+		if (max == testValue2)
+		{
+		dir = 2;
+		}
+		if (max == testValue3)
+		{
+		dir = 2;
+		}
+		}
+		if (j != 0) //i
+		{
+		DP_cell insertCell = t.t[i][j - 1];
+		int testValue1 = insertCell.S + t.c.startGapScore + t.c.continueGapScore;
+		int testValue2 = insertCell.D + t.c.startGapScore + t.c.continueGapScore;
+		int testValue3 = insertCell.I + t.c.continueGapScore;
+
+		if (max == testValue1)
+		{
+		dir = 3;
+		}
+		if (max == testValue2)
+		{
+		dir = 3;
+		}
+		if (max == testValue3)
+		{
+		dir = 3;
+		}
+		}
+		if (i != 0 && j != 0) //s
+		{
+		DP_cell subCell = t.t[i - 1][j - 1];
+		int sSub = subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c);
+		int testValue1 = cellMax(subCell) + sSub;
+
+		if (max == testValue1)
+		{
+		dir = 1;
+		}
+		}
+		if (dir == 0)
+		{
+		break;
+		}
+		//ENDDIRBLOCK*/
+
+		//cout << "  [" << lastValue << "to" << max <<"]  ";
+		//cout << dirSDI;
+		//if (++counter % 6 == 0) cout << endl;
+
 
 		if (moveDir == 1) //s 
 		{
