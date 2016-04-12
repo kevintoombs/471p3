@@ -1,0 +1,464 @@
+
+<!-- saved from url=(0067)http://www.eecs.wsu.edu/~ananth/CptS571/Programs/Program3/index.htm -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+    
+    <meta http-equiv="Content-Language" content="en-us">
+    <meta name="GENERATOR" content="Microsoft FrontPage 6.0">
+    <meta name="ProgId" content="FrontPage.Editor.Document">
+    <title>PROGRAM PROJECT 1</title>
+  </head>
+  <body>
+    <p align="center"><b>PROGRAMMING ASSIGNMENT #3</b></p>
+    <p align="center">Cpt S 471/571, Spring 2016</p>
+    <p align="center"><b>Due: <font color="#FF0000">April 27, </font></b> <font color="#FF0000"> <span style="background-color: #FFFFFF; font-weight:700">11:59pm
+          (Firm deadline) </span> </font>@ OSBLE+ Assignment Dropbox <br>
+      &nbsp;(24 hour grace period allowed with 10% late penalty)</p>
+    <hr>
+    <p align="left"><b>General Guidelines:</b></p>
+    <ul>
+      <li> <u style="color: rgb(0, 0, 0); font-style: normal; font-variant: normal; font-weight: normal; line-height: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-size-adjust: auto; -webkit-text-stroke-width: 0px">
+          For this programming project, you </u> <u style="color: rgb(0, 0, 0); font-family: &#39;Times New Roman&#39;; font-size: medium; font-style: normal; font-variant: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-size-adjust: auto; -webkit-text-stroke-width: 0px;">
+          <i>are allowed to work in teams of size (up to) 2 each</i></u><span style="color: rgb(0, 0, 0); font-family: &#39;Times New Roman&#39;; font-size: medium; font-style: normal; font-variant: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-size-adjust: auto; -webkit-text-stroke-width: 0px; display: inline !important; float: none;">.
+          Teaming up with someone else is not mandatory but highly encouraged.
+          Note that regardless of whether you decide to work in teams or not,
+          the assignment will be graded strictly on its merit and the same grade
+          will be given to all team members.<br>
+        </span><span style="color: rgb(0, 0, 0); font-family: &#39;Times New Roman&#39;; font-size: medium; font-style: normal; font-variant: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-size-adjust: auto; -webkit-text-stroke-width: 0px; display: inline !important; float: none;">
+          It is preferred that you team up with the same folks as for your PA2.
+        </span> <span style="color: rgb(0, 0, 0); font-family: &#39;Times New Roman&#39;; font-size: medium; font-style: normal; font-variant: normal; font-weight: normal; letter-spacing: normal; line-height: normal; orphans: 2; text-align: left; text-indent: 0px; text-transform: none; white-space: normal; widows: 2; word-spacing: 0px; -webkit-text-size-adjust: auto; -webkit-text-stroke-width: 0px; display: inline !important; float: none;">&nbsp;
+          </span></li>
+      <li>Reproduction of source codes from online resources or other's people's
+        assignments is <i> strictly not </i>allowed, and will be considered
+        cheating. All the source code should be solely yours. You are allowed to
+        use any standard library functions supported by the underlying
+        programminng language, but if that directly implements any of the
+        functions posed in the question of the assignment then you should *<i>not</i>*
+        use those libraries and instead write your own code.</li>
+      <li>You can use any of the following programming language - C, C++, Java,
+        or Python. It is recommended that you use the same language that you
+        used for your previous programming assignments, because you will be
+        building upon them for this project. </li>
+      <li>Grading will be based on a combination of factors such as correctness,
+        coding style, implementation efficiency, exception handling, source code
+        documentation, modularity of design, and code modularity/reusability. </li>
+      <li><b><u>Submission:</u></b> The assignment should be made in the OSBLE+
+        assignment dropbox for PA3. The assignment should be zipped into an
+        archive folder (named after your name - e.g., Program3-XYZ.zip).
+        Submissions are due by 11:59pm on the due date. A 24-hour grace period
+        is allowed although it will incur a late penalty of 10%.</li>
+      <li><u>Note:</u> If you are submitting as a team (of 2 people) then both
+        of you should submit identical copies separately on OSBLE+. Just make
+        sure you add the information of your team participants in the <font color="#FF0000">
+          <a href="http://www.eecs.wsu.edu/~ananth/CptS571/CptS571CoverSheet.doc">COVER SHEET</a></font>. </li>
+    </ul>
+    <hr>
+    <p><b><i>Assignment: READ MAPPING </i></b></p>
+    <p>The goal of this programming assignment is to implement an algorithm and
+      test it for the read mapping problem, which is defined as follows:</p>
+    <p>&nbsp;&nbsp;&nbsp; Given a <i>reference genome </i>sequence <i>G</i>
+      of length <i>N</i>, and a set of <i>m</i> sequences (called "<i>reads</i>")
+      each of length <em>l</em>, identify the genomic locus to which each read
+      best aligns.&nbsp; </p>
+    <p>In practice, N is very large (~10<sup>6</sup>-10<sup>9</sup>characters),
+      whereas <i>l</i> is really small (~10<sup>2</sup> characters). However,
+      if <i>M</i> denotes the sum of the lengths of all the <i>m</i> reads,
+      then typically <i>M</i> tends to be anywhere between 10x and 100x bigger
+      than <i>N</i>. (This factor is also sometimes called the <em>coverage </em>of
+      sequencing.) &nbsp;</p>
+    <p>For example, if the reference genome's length N is 10<sup>6</sup>
+      characters, and if the coverage is 10x, and if the reads are all of length
+      100 characters (<em>l</em>), then the number of reads m is given by: <em>N
+        x coverage </em>/ <em>l</em> = 10<sup>6</sup> x 10 / 100 = 10<sup>5</sup>
+      reads.</p>
+    <p>Given the above setting,&nbsp; it is simply not practical to align every
+      read to the entire reference genome in a brute-force manner. What is
+      required is a fast and efficient way to first identify potential locations
+      along the reference genome to which the read exhibits a good promise of
+      aligning up, and then perform a more rigorous alignment computation of the
+      read against those short-listed loci alone. The goal therefore is to map
+      the reads to the reference genome, in such a way so as to drastically
+      reduced both the number of alignment tasks and the size of each alignment
+      task. This can be achieved using a combination of the suffix trees and
+      alignment methods that you have already developed as follows:</p>
+    <p><font color="#0000FF"><b>********************** ReadMapping: MAIN begin
+          ***********************</b></font></p>
+    <p><font color="#0000FF"><b><i>Step 1) (ConstructST) <br>
+          </i></b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        Construct the suffix tree for G using McCreight's algorithm.&nbsp;
+        Before you do this, however, just change your old suffix tree code to
+        add two fields to every node structure: { int start_leaf_index; int
+        end_leaf_index; }. And while creating a new node (internal node or
+        leaf), initialize these two new fields values to -1. Nothing else
+        changes to your McCreight's code.</font></p>
+    <p><font color="#0000FF"><b><i>Step 2) (PrepareST) <br>
+          </i></b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "Prepare" the
+        suffix tree in order to answer queries posed in Step 3.&nbsp; I have
+        explained below in function <em>PrepareST() </em>what is required to
+        be done here in this prepare step. Please read on.&nbsp; FYI: This step
+        will use the DFS routine you should have already implemented for your
+        suffix tree in PA2.</font></p>
+    <p><font color="#0000FF"><b><i>Step 3) (MapReads) <br>
+          </i></b>&nbsp;&nbsp;&nbsp; For i=1 to m do {</font></p>
+    <p><font color="#0000FF">&nbsp;&nbsp;&nbsp; Step 3a) Let <i>r<sub>i </sub></i>be
+        the <i>i<sup>th</sup> </i>read. Let <i>l </i>denote the length of <i>r<sub>i</sub></i>.</font></p>
+    <p><font color="#0000FF">&nbsp;&nbsp;&nbsp; Step 3b) (<i>FindLoc</i>) <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        Find the set <i>L<sub>i</sub></i> of all locations on the genome G that
+        share a <u>longest </u>common substring of length &gt;=</font><font color="#0000FF"><font color="#0000FF"><span style="font-family: Symbol;">x</span></font>
+        characters with the read <i>r<sub>i</sub></i>. For example, if the
+        reference genome sequence is the string "<strong><em>accg</em>accg</strong>tact"
+        and the read is "tac<strong>accg</strong>", then the longest common
+        substring between the read and the reference is "accg", which occurs
+        starting from positions 1 and 5 along the reference genome. So the <i>L<sub>i</sub></i>
+        for this read should be output as {1,5}, assuming </font><font color="#0000FF"><font color="#0000FF"><span style="font-family: Symbol;">x</span></font> is
+        2 or 3.<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        The implementation of this step will use the suffix tree constructed in
+        Step 1.&nbsp;<span style="font-family: Symbol;"> x </span>is a
+        parameter to the code, and in practice it can be calculated as a
+        function of both the read length and the estimated error rate of the
+        sequencing process that led to the generation of the reads. For this
+        project, however, just use <span style="font-family: Symbol;">x</span>=25
+        in all your experiments. <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        The proposed algorithm to do this "FindLoc" is elaborated <b>below</b>.<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        Note that the set <i>L<sub>i</sub></i> represents a candidate list of
+        all indices <i>j</i>'s along the reference genome G which are starting
+        positions for the longest common exact match of length &gt;=<span style="font-family: Symbol;">x</span>
+        characters between <i>r<sub>i</sub> </i>and G. (This also implies, 1<font face="Times New Roman">&#8804;j&#8804;N-</font><span style="font-family: Symbol;">x</span><font face="Times New Roman">+1). </font><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        Let the number of identified indices along G for <i>r<sub>i</sub></i>
+        be <i>|L<sub>i</sub>|</i>.</font></p>
+    <p><font color="#0000FF">&nbsp;&nbsp;&nbsp; Step 3c) (<i>Align</i>) <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        For each <i>j <font face="Symbol">Î</font> L<sub>i</sub>&nbsp; </i>{<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        i) Extract substring <i>G[j-l... j+l]</i>, where </font><font color="#0000FF"><font color="#0000FF"><i>l</i> is the</font> length of the read.&nbsp; (Of
+        course, make sure you handle boundary cases here - i.e., if j is at the
+        beginning or ending parts of G, then you should correspondingly retrieve
+        as many characters that exist in G without going out of bounds.).</font></p>
+    <p><font color="#0000FF">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        ii) Perform a local alignment computation (using Smith-Waterman) between
+        read <i> r<sub>i</sub></i> and <i>G[j-l... j+l]</i>. For the
+        alignment, you can use following parameters: {m_a =+1, m_i=-2, h=-5,
+        g=-1}.&nbsp; After computing the DP table, record two pieces of
+        information corresponding to the computed Optimal Local Alignment: a)
+        the number of matches (<i>#matches</i>), and b) the alignment length (<i>#alignlen</i>),
+        which is nothing but the number of aligned columns in your final
+        alignment (should be equal to #matches + #mismatches + #gaps). One
+        simple way to calculate these two values (#matches, #alignlen) will be
+        to simply call the optimal path traceback function (<i>without </i>doing
+        a display of the path) and calculate&nbsp; the numbers from there. (PS:
+        There is actually second, more efficient way that will allow you to
+        calculate these numbers during the forward computation of the DP table
+        itself.)</font></p>
+    <p><font color="#0000FF">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        iii) Let <i>PercentIdentity = #matches/#alignlen.</i></font></p>
+    <p><font color="#0000FF">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        iv) Let <i>LengthCoverage = #alignlen / l</i> .</font></p>
+    <p><font color="#0000FF">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        v) If (<i>PercentIdentity </i><font face="Times New Roman"><i>&#8805; X% AND
+            LengthCoverage &#8805; Y%</i>) {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          // that means, the alignment is of "good" quality. All we need to do
+          now is to keep track of and output the best quality alignment. <br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          // Note: Here, X and Y are user supplied parameters. By default, set
+          X=90%, Y=80%.<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          Is this value of <i>LengthCoverage &gt; </i>previously seen best
+          value for <i> LengthCoverage </i>for this read from any other value
+          of <i>j </i>seen so far? <br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          If so, update the new value of LengthCoverage and also the record this
+          as the "best hit". Basically, "best hit" = (j0,j1), which are the
+          start and end indices of the substring on the reference genome
+          sequence corresponding to this optimal local alignment.</font></font></p>
+    <p><font color="#0000FF" face="Times New Roman">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        }</font></p>
+    <p><font color="#0000FF">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        } // end for j</font></p>
+    <p><font color="#0000FF"><i><b>&nbsp;&nbsp;&nbsp; Step 4) (Output)<br>
+          </b></i>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        Output the best hit calculated from Step <i>3c.v</i> as the hit for
+        read <i>r<sub>i</sub></i>. Your output can be simply: &lt;Read_name&gt;
+        &lt;Start index of hit&gt; &lt;End index of hit&gt;.</font></p>
+    <p><font color="#0000FF">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        If no hit was identified for this read, output &lt;Read_name&gt;&nbsp;
+        "No hit found".</font></p>
+    <p><font color="#0000FF">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        } // end for
+i&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</font>
+    </p>
+    <p><font color="#0000FF"><b>********************** ReadMapping: MAIN end
+          ***********************</b></font></p>
+    <p><b>
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////</b></p>
+    <p><font color="#FF00FF"><b>Algorithm for FindLoc function (Step 3b):</b></font></p>
+    <p><font color="#FF00FF">The goal of this function is to find a longest
+        common substring between an input read <i>r</i> and the reference
+        genome G, and return all its starting positions along the reference
+        genome.&nbsp; To do this, we will try to reuse as much of the function
+        FindPath() that you wrote for PA2 as possible. The main steps of the
+        method is as follows.</font></p>
+    <p><font color="#FF00FF"><b>**************** Algorithm for FindLoc function
+          (Step 3b) begin ***********************</b></font></p>
+    <p><font color="#FF00FF">// note: throughout this procedure you will never
+        modify anything in the suffix tree. In other words, the suffix tree will
+        be used as read-only.</font></p>
+    <p><font color="#FF00FF">0. Initializations: <br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; i) struct node *T = the root
+        of the suffix tree.&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //
+        "tree pointer"<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ii) int&nbsp; read_ptr =
+        1;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        // "read pointer" (again, use 0 in your code). <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="background-color: #FFFFFF"> &nbsp; // Update this pointer as
+          you match up each consecutive character along the read successfully.<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+&nbsp;&nbsp;
+          // Don't increment it if you see a mismatch.</span></font></p>
+    <p><font color="#FF00FF">1. Starting at T, find a path below the node T in
+        the tree that spells out as many remaining characters of r starting from
+        read_ptr. This would be a simple call to the FindPath() routine starting
+        at the root (T) and the starting index for comparison on the read
+        (read_ptr).&nbsp; </font></p>
+    <p><font color="#FF00FF">2. Let say, after some number of successful
+        character comparisons, a mismatch is observed and so the matching path
+        terminates. There are two subcases here. The matching path could either
+        terminate at the end of an edge (case A), or it could terminate be in
+        the middle of an edge (case B). Either way, let u be the internal node
+        last visited along the matching path. In case A, u will be the node at
+        which this edge ends. For case B, u will be the node from which this
+        edge spawns of<span style="background-color: #FFFFFF">f.&nbsp; If case
+          B, then decrease the value of read_ptr by the number of characters
+          that successfully matched below u along the edge before you hit a
+          mismatch - i.e., if you matched r characters successfully along an
+          edge below u before you hit a mismatch along that edge, then read_ptr
+          = read_ptr - r. This will effectively reset the read_ptr back to where
+          it was right after u. (Note, for case A, you don't need to do this
+          since the mismatch occurred right after visiting node u.) </span> </font>
+    </p>
+    <p><font color="#FF00FF">3. If the string-depth(u) <font face="Times New Roman">
+          &#8805; </font></font><font color="#FF00FF"><font face="Times New Roman"><font color="#0000FF"><span style="font-family: Symbol;">x</span></font></font><font face="Symbol"></font><font face="Times New Roman"> and if the
+          string-depth is the longest seen so far for this read, then store a
+          pointer, called "<i>deepestNode" </i>to the node u.&nbsp; We will
+          update this pointer in future iterations if need be.</font></font></p>
+    <p><font color="#FF00FF" face="Times New Roman">4. </font><font color="#FF00FF">
+        Now, simply take the suffix link pointer from u to<span style="background-color: #FFFFFF">
+          v. Set T=v, </span>and then go back to&nbsp; step 1, and repeat the
+        process until you find the next mismatching point and so on. </font> </p>
+    <p><font color="#FF00FF">5. At some point you will exhaust comparing all
+        characters in your read. That signifies the end of iterations. Exit out
+        of the while/for loop (from steps 1-4). </font> </p>
+    <p><font color="#FF00FF">6. Upon exiting the loop, go to the node pointed to
+        by the most up-to-date <i>deepestNode </i>pointer. The suffix ids in
+        the interval A[deepestNode-&gt;start_index] to
+        A[deepestNode-&gt;end_index] is to be returned as the candidate list of
+        genomic positions <i>L<sub>i</sub></i> for the read.&nbsp; (Now, there
+        is a possibility that this node's path-label doesn't really correspond
+        to the "longest" common substring between the read and genome, but if
+        that happens it will only be slightly shy of the length in practice. So
+        ignore this slight approximation in algorithm and use this algorithm.)</font></p>
+    <p><font color="#FF00FF"><b>**************** Algorithm for FindLoc function
+          (Step 3b) end ***********************</b></font></p>
+    <p><b>
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////</b></p>
+    <p><font color="#FF0000"><b>Algorithm for PrepareST function (Step 2):</b></font></p>
+    <p><font color="#FF0000">The goal of this step is to compute the leaf list
+        corresponding to the each internal node and leaf in the suffix tree. The
+        <i>leaf list </i>of a node is the list of all leaves under a node's
+        subtree from left to right. For example, in the suffix tree
+        corresponding to the string banana$ (</font><a href="http://www.eecs.wsu.edu/~ananth/CptS571/Programs/Program2/BWT_from_ST_example.pdf"><font color="#FF0000">see here for a picture</font></a><font color="#FF0000">)
+        the leaf list for the root is [ 7, 6, 4, 2, 1, 5, 3]; leaf list for the
+        node with path-label "a" is [6,4,2]; leaf list for the node with
+        path-label "ana" is [4, 2]; and so on. Obviously, as you can see, if we
+        were to store the entire list from every node explicitly, then the space
+        complexity of the tree could become quadratic (O(n<sup>2</sup>)).
+        Instead, if A is the array containing all leaves (i.e., with only their
+        suffix id information stored) in the left to right order of the entire
+        suffix tree, then every node's leaf list becomes nothing but a simple <i>interval
+          &lt;start_index,end_index&gt; </i> within this array. For example, in
+        the </font> <a href="http://www.eecs.wsu.edu/~ananth/CptS571/Programs/Program2/BWT_from_ST_example.pdf"><font color="#FF0000">suffix
+          tree picture for banana$</font></a><font color="#FF0000">, look at the
+        array A below the tree (note, its starting index is 1 and not 0) where
+        A[1]=7 ... A[7]=3.&nbsp; Then, the leaf list for the root, represented
+        in the interval form, is &lt;1,7&gt;; leaf list for the node with
+        path-label "a" is &lt;2,4&gt;; leaf list for the node with path-label
+        "ana" is &lt;3,4&gt;; leaf list for the leaf suffix 2 is &lt;4,4&gt;;
+        and so on. In other words, this interval approach requires only 2
+        integers per node, regardless of the size of the corresponding leaf
+        list.</font></p>
+    <p><font color="#FF0000">In your PrepareST function, use the above interval
+        approach to compute and store the leaf list for all nodes (leaves and
+        internal nodes) in the tree that have a string-depth (i.e., length of
+        their path-label) <font face="Times New Roman">&#8805; </font><font face="Symbol">l</font><font face="Times New Roman">.&nbsp; You can do this by simply modifying
+          your DFS function (which you must have already written for your PA2)
+          as follows:</font></font></p>
+    <p><font color="#FF0000"><b>**************** Algorithm for PrepareST
+          function (Step 2) begin ***********************</b></font></p>
+    <p><font color="#FF0000"><font face="Times New Roman">(Assumes that the node
+          structure has been updated to contain two additional fields: { int
+          start_index; int end_index; } and initialized to -1.)<br>
+          // This function will calculate the leaf lists of all the nodes with
+          string-depth at least </font></font><font color="#FF0000"><font face="Times New Roman"><font color="#0000FF"><span style="font-family: Symbol;">x</span></font></font><font face="Symbol"> </font> <font face="Times New Roman">while
+          simultaneously populating array A (the list of leaf suffix IDs from
+          left to right)</font></font></p>
+    <p><font color="#FF0000" face="Times New Roman">1. Create an array A of size
+        n (string length of input + 1 for $), and initialize content with -1.</font></p>
+    <p><font color="#FF0000" face="Times New Roman">2. Initialize a global
+        integer variable <i>nextIndex </i>to the start of the A array (i.e.,
+        in all my pseudocodes I have been using start indices as 1. Please
+        initialize this to 0 in your real code.) This variable represents the
+        next index in A which has to be populated.</font></p>
+    <p><font color="#FF0000" face="Times New Roman">2. Call DFS_PrepareST(root,
+        A); // where root is the root of the suffix tree of the reference genome</font></p>
+    <p><font color="#FF0000" face="Times New Roman">DFS_PrepareST (struct node
+        *T, int A[]) {</font></p>
+    <p><font color="#FF0000" face="Times New Roman">&nbsp;&nbsp;&nbsp; if
+        (T==NULL) return;</font></p>
+    <p><font color="#FF0000"><font face="Times New Roman">&nbsp;&nbsp;&nbsp; if
+          (T is a leaf node) {&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          // case: T is a leaf node<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          A[nextIndex] =&nbsp; suffix ID of this leaf node;<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          if(T-&gt;stringdepth &#8805;</font></font><font color="#FF0000"><font face="Times New Roman"><font color="#0000FF"><span style="font-family: Symbol;">x</span></font></font><font face="Symbol"></font><font face="Times New Roman">)&nbsp; {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          T-&gt;start_index = nextIndex;<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          T-&gt;end_index = nextIndex;<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          nextIndex++;<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          return;&nbsp; </font></font> </p>
+    <p><font color="#FF0000" face="Times New Roman">&nbsp;&nbsp;&nbsp; }</font></p>
+    <p><font color="#FF0000" face="Times New Roman">&nbsp;&nbsp;&nbsp; //case: T
+        is an internal node</font></p>
+    <p><font color="#FF0000" face="Times New Roman">&nbsp;&nbsp;&nbsp; For each
+        child u under node T in the left-to-right order {<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; -
+        DFS_PrepareST(u, A);&nbsp;&nbsp; // recursively visit each child of the
+        current internal node, from left to right.<br>
+        &nbsp;&nbsp;&nbsp; }</font></p>
+    <p><font color="#FF0000"><font face="Times New Roman">&nbsp;&nbsp;&nbsp; //
+          the above step would have computed the leaf lists for all of T's
+          children. Now its time to set the leaf list interval for T. But do
+          that only if T's string depth &#8805; </font></font><font color="#FF0000"><font face="Symbol"><font color="#0000FF"><span style="font-family: Symbol;">x</span></font></font><font face="Times New Roman">.</font></font></p>
+    <p><font color="#FF0000"><font face="Times New Roman">&nbsp;&nbsp;&nbsp;
+          if(T-&gt;stringdepth &#8805; </font></font><font color="#FF0000"><font face="Times New Roman"><font color="#0000FF"><span style="font-family: Symbol;">x</span></font></font><font face="Symbol"></font><font face="Times New Roman">)&nbsp; {<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Let
+          u_left = T's first child (note: same as leftmost child).&nbsp; <br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Let
+          u_right = T's last child (note: same as rightmost child).<br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          T-&gt;start_index = u_left-&gt;start_index; <br>
+          &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          T-&gt;end_index = u_right-&gt;end_index; <br>
+          &nbsp;&nbsp;&nbsp; }</font></font></p>
+    <p><font color="#FF0000" face="Times New Roman">} // end DFS_PrepareST (this
+        is going to be a modified version of your old DFS code)</font></p>
+    <p><font color="#FF0000"><b>**************** Algorithm for PrepareST
+          function (Step 2) end ***********************</b></font></p>
+    <p><b>
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////</b></p>
+    <p>&nbsp;</p>
+    <p><u>Input/Output&nbsp; specifications:</u></p>
+    <p>How to call the program? <i><br>
+        &nbsp;&nbsp;&nbsp; $ &lt;read_mapper executable&gt; &lt;FASTA file
+        containing reference genome sequence G&gt; &lt;FASTA file containing
+        reads&gt; &lt;input alphabet file&gt;</i></p>
+    <p>Other Parameter files:</p>
+    <ul>
+      <li>Alignment parameters.config file (same that you used for your PA1,
+        with match, mismatch, opening gap and continuing gap penalties).</li>
+      <li>Optionally, you can have another parameters file in which to specify
+        the value for <font face="Symbol">l</font> or you can even use the same
+        alignment parameter file if you want for this purpose. In any case for
+        all&nbsp; your experiments just use <font face="Symbol">l</font>=25.&nbsp;
+        </li>
+    </ul>
+    <p>What all data should your program report?</p>
+    <ul>
+      <li>Input stats: Length of the reference genome; the number of reads in
+        the input;</li>
+      <li>Main result: The top mapped hit for each read (as per instructions in
+        Step 4 of the main function). Please output this into a separate file
+        called "MappingResults_*.txt", where the * identifies which input read
+        sequence file you used.</li>
+      <li>Timing statistics: Total time for the program execution. This should
+        also be broken down into the time taken for each of the main steps of
+        your main function - viz. ConstructST, PrepareST, MapReads, Output.</li>
+      <li>Other stats: What is the average number of alignments performed per
+        read?</li>
+    </ul>
+    <p><u>Test inputs:</u></p>
+    <p>Synthetic Input:&nbsp;&nbsp;&nbsp; <a href="http://www.eecs.wsu.edu/~ananth/CptS571/Programs/Program3/Peach_reference.fasta">Peach
+        reference genomic sequence</a>&nbsp;&nbsp;(<a href="http://www.eecs.wsu.edu/~ananth/CptS571/Programs/Program3/Peach_reference.fasta.stats">size
+        stats</a>)&nbsp;&nbsp;&nbsp; <a href="http://www.eecs.wsu.edu/~ananth/CptS571/Programs/Program3/Peach_simulated_reads.fasta">Simulated
+        reads from peach genomic sequence</a> (<a href="http://www.eecs.wsu.edu/~ananth/CptS571/Programs/Program3/Peach_simulated_reads.fasta.stats">size
+        stats</a>)&nbsp; <a href="http://www.eecs.wsu.edu/~ananth/CptS571/Programs/Program3/DNA_alphabet.txt">DNA alphabet</a>&nbsp; </p>
+    <p>Real world Input: <a href="http://www.eecs.wsu.edu/~ananth/CptS571/Programs/Program3/Peach_reference.fasta">Peach reference
+        genomic sequence</a>&nbsp;&nbsp;(<a href="http://www.eecs.wsu.edu/~ananth/CptS571/Programs/Program3/Peach_reference.fasta.stats">size
+        stats</a>)&nbsp;&nbsp;&nbsp; <a href="http://www.eecs.wsu.edu/~ananth/CptS571/Programs/Program3/Cherry_reads.fasta">Reads from
+        cherry genome</a> (<a href="http://www.eecs.wsu.edu/~ananth/CptS571/Programs/Program3/Cherry_reads.fasta.stats">size stats</a>)&nbsp;
+      <a href="http://www.eecs.wsu.edu/~ananth/CptS571/Programs/Program3/DNA_alphabet.txt">DNA alphabet</a>&nbsp; </p>
+    <p><u>Testing:</u> For testing, please use the synthetic read set input
+      first, so that you will be able to check correctness. These reads were
+      generated by a sequencing simulator that I wrote, which basically samples
+      different part of a given reference genomes, makes a few random changes as
+      per the error rate and outputs the reads. The lengths are also slightly
+      varied, but they are all very close to 100 characters each. Each read is
+      named with the information of where it was derived from the reference
+      genome. For instance, "&gt;Read_1_from_Peach_reference.fasta_AT_712655"
+      means that that read maps to location G[712655..712757], since that read
+      has 103 characters. Initially, for testing, you can use small subsets of
+      these reads, test them before going larger scale.&nbsp; There are a total
+      of 500K reads in this input. Include the mapped&nbsp; output for the
+      largest possible run (preferably the entire 500K set) in your submission.</p>
+    <p>After you have tested out with the synthetic input, then do one single
+      run, if possible on the whole Cherry read set vs. the Peach reference
+      genome, and submit the answer.</p>
+    <p><b><i>Report:</i></b></p>
+    <p>In a separte Word or PDF document, report the following:</p>
+    <ol>
+      <li><u>System configuration:</u>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; CPU used,
+        Clock rate, RAM, Cache size (if you know it).</li>
+      <li><u>Summary of results:</u>
+        <p>&nbsp;&nbsp;&nbsp; Tabulate the performance statistics of your
+          results output as per instructions above under the bullet "What all
+          data should your program report?".&nbsp; Do this separately for each
+          of the two inputs (Synthetic input and Real world input). Basically
+          this section should contain all statistics except the mapping results
+          output by your program.</p>
+        &nbsp;&nbsp;&nbsp; <u>Justification:</u>&nbsp;&nbsp;&nbsp; Also provide
+        a brief justification to explain your observations against expectations.
+      </li>
+    </ol>
+    <li>
+      <p><b><u>CHECKLIST FOR SUBMISSION:</u></b></p>
+      <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ___&nbsp; Cover sheet</p>
+      <p>&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp; ___&nbsp; Source code</p>
+      <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ___&nbsp; A helpful readme
+        file saying how to compile and run the code </p>
+      <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ___&nbsp;&nbsp; Output all
+        performance statistics and mapping results file, in two separate files,
+        for each of the two test inputs (Peach vs. Peach simulated reads, AND
+        Peach vs. Cherry reads). So this should be a total of FOUR output files.</p>
+      <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ___&nbsp; Report (Word or
+        PDF)</p>
+      <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; ___&nbsp; All the above
+        zipped into an archive. The Zip file name should have your name in it.</p>
+      <p><strong>&nbsp; Note: There will not be any time for demos for this
+          project. Therefore, I need all your output files as part of your
+          submission for this project and I will be grading based on your source
+          code, your output files and your report.</strong></p>
+      <strong> </strong>
+      <p>&nbsp;</p>
+      <p>&nbsp;</p>
+    </li>
+  
+
+</body></html>
