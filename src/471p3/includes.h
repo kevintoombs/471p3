@@ -12,7 +12,6 @@
 #include <ctype.h>
 #include <stack>       
 #include <deque>   
-#include <ctype.h>
 #include <tchar.h>
 #include <ctime>
 #include <stdlib.h> 

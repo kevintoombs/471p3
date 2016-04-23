@@ -2,24 +2,178 @@
 
 using namespace std;
 
+bool DP_table::parseFasta(string fileName)
+{
+	ifstream fasta;
+	if (true)
+	{
+		fasta.open(fileName, ios::in);
+		if (!fasta.good())
+		{
+			return false;
+		}
 
-bool parseFasta(char *argv[], DP_table &t);
-config getConfig(int argc, char *argv[]);
-int getAlignmentType(int argc, char *argv[]);
-int demo(int argc, char * argv[]);
-void buildTable(DP_table &t);
-void initTable(DP_table &t);
-void calcTable(DP_table &t);
-int maximum(int S, int D, int I, int alignmentType);
-int subFunction(char a, char b, config c);
-void printTable(DP_table &t);
-void retrace(DP_table &t);
-void recursivelyPrintChildren(DP_table &t, int i, int j);
-int direction(DP_table &t, int i, int j);
-int maximum2(DP_cell &c, int &mDir);
-int cellMax(DP_cell c);
-void testDirection(int lastValue, DP_cell to, config c, int dir, int i, int j, DP_table &t);
-int cellMax2(DP_cell &c, int find, int &mDir);
+		char ch;
+		int state = 0;
+		int getId = 0;
+
+		//probably overly complicated state based method to parse the fasta file
+		while (fasta.get(ch))
+		{
+
+			//should always evaluate true at first 
+			if (state == 0 && getId == 1)
+			{
+				if (isspace(ch))
+				{
+					//cout << "not alnum" << endl;
+					getId = 0;
+				}
+				else if (!isspace(ch))
+				{
+					this->id1 += ch;
+					//cout << t.id1 << endl;
+				}
+			}
+
+			if (ch == '>' && state == 0 && getId == 0)
+			{
+				getId = 1;
+			}
+
+
+
+			//after the first line
+			if (ch == '\n' && state == 0)
+			{
+				state = 1;
+			}
+
+			if (state == 2 && getId == 1)
+			{
+				if (isspace(ch))
+				{
+					//cout << "not alnum" << endl;
+					getId = 0;
+				}
+				else if (!isspace(ch))
+				{
+					this->id2 += ch;
+					//cout << t.id2 << endl;
+				}
+			}
+
+			if (state == 1)
+			{
+				if (ch == 'A' || ch == 'C' || ch == 'G' || ch == 'T' || ch == 'a' || ch == 'c' || ch == 'g' || ch == 't')
+				{
+					this->sequence1 += toupper(ch);
+					//cout << t.sequence1 << endl;
+					//cout << t.sequence1.length() << endl;
+				}
+				if (ch == '>')
+				{
+					state = 2;
+					getId = 1;
+				}
+			}
+
+
+
+
+			if (ch == '\n' && state == 2)
+			{
+				state = 3;
+			}
+
+			if (state == 3)
+			{
+				if (ch == 'A' || ch == 'C' || ch == 'G' || ch == 'T' || ch == 'a' || ch == 'c' || ch == 'g' || ch == 't')
+				{
+					this->sequence2 += toupper(ch);
+					//cout << t.sequence2 << endl;
+					//cout << t.sequence2.length() << endl;
+				}
+				//cout << ch;
+				if (ch == '>') {
+					state = 4;
+				}
+			}
+
+
+		}
+
+		//cout << t.id1 << ',' << t.id2 << endl;
+		fasta.close();
+		return true;
+	}
+
+	else
+	{
+		cout << endl << "No input file specified. Correct usage is  $ <executable name> "
+			<< "<input file containing both s1 and s2> <0: global, 1: local> <optional: path to parameters config file>"
+			<< endl;
+		return false;
+	}
+}
+
+config getConfig(int argc, char *argv[])
+{
+	ifstream conFile;
+	string filename;
+	config c;
+
+	if (argc == 4)
+	{
+		cout << argv[3];
+		filename = argv[3];
+	}
+	else
+	{
+		filename = "parameters.config";
+		cout << "Default file: " << filename << " opened." << endl;
+	}
+
+	conFile.open(filename, ios::in);
+	if (!conFile.good())
+	{
+		cout << endl << filename << " not found. All paremters default to 0." << endl;
+		return c;
+	}
+
+	string line;
+	while (getline(conFile, line))
+	{
+		stringstream s(line);
+		string tmp1;
+		string tmp2;
+		while (!s.eof()) {
+			s >> tmp1;
+			s >> tmp2;
+		} //cout << tmp1 << tmp2 << endl;
+		if (tmp1 == "match")
+		{
+			c.matchScore = stoi(tmp2);
+		}
+		if (tmp1 == "mismatch")
+		{
+			c.mismatchScore = stoi(tmp2);
+		}
+		if (tmp1 == "h")
+		{
+			c.startGapScore = stoi(tmp2);
+		}
+		if (tmp1 == "g")
+		{
+			c.continueGapScore = stoi(tmp2);
+		}
+	}
+
+	return c;
+}
+
+//DONE: above
+///NEED TO TRANSFER TO DP_TABLE:: below
 
 int demo(int argc, char *argv[])
 {
@@ -27,7 +181,7 @@ int demo(int argc, char *argv[])
 	DP_table t;
 	t.alightmentType = getAlignmentType(argc, argv);
 	t.c = getConfig(argc, argv);
-	if (!parseFasta(argv, t))
+	if (!t.parseFasta(argv[1]))
 	{
 		cin.ignore();
 		return 1;
@@ -152,175 +306,7 @@ void initTable(DP_table &t)
 	}
 }
 
-bool parseFasta(char *argv[], DP_table &t)
-{
-	ifstream fasta;
-	if (argv[1])
-	{
-		fasta.open(argv[1], ios::in);
-		if (!fasta.good())
-		{
-			return false;
-		}
 
-		char ch;
-		int state = 0;
-		int getId = 0;
-
-		//probably overly complicated state based method to parse the fasta file
-		while (fasta.get(ch))
-		{
-
-			//should always evaluate true at first 
-			if (state == 0 && getId == 1)
-			{
-				if (isspace(ch))
-				{
-					//cout << "not alnum" << endl;
-					getId = 0;
-				}
-				else if (!isspace(ch))
-				{
-					t.id1 += ch;
-					//cout << t.id1 << endl;
-				}
-			}
-
-			if (ch == '>' && state == 0 && getId == 0)
-			{
-				getId = 1;
-			}
-
-
-
-			//after the first line
-			if (ch == '\n' && state == 0)
-			{
-				state = 1;
-			}
-
-			if (state == 2 && getId == 1)
-			{
-				if (isspace(ch))
-				{
-					//cout << "not alnum" << endl;
-					getId = 0;
-				}
-				else if (!isspace(ch))
-				{
-					t.id2 += ch;
-					//cout << t.id2 << endl;
-				}
-			}
-
-			if (state == 1)
-			{
-				if (ch == 'A' || ch == 'C' || ch == 'G' || ch == 'T' || ch == 'a' || ch == 'c' || ch == 'g' || ch == 't')
-				{
-					t.sequence1 += toupper(ch);
-					//cout << t.sequence1 << endl;
-					//cout << t.sequence1.length() << endl;
-				}
-				if (ch == '>')
-				{
-					state = 2;
-					getId = 1;
-				}
-			}
-
-
-
-
-			if (ch == '\n' && state == 2)
-			{
-				state = 3;
-			}
-
-			if (state == 3)
-			{
-				if (ch == 'A' || ch == 'C' || ch == 'G' || ch == 'T' || ch == 'a' || ch == 'c' || ch == 'g' || ch == 't')
-				{
-					t.sequence2 += toupper(ch);
-					//cout << t.sequence2 << endl;
-					//cout << t.sequence2.length() << endl;
-				}
-				//cout << ch;
-				if (ch == '>') {
-					state = 4;
-				}
-			}
-
-
-		}
-
-		//cout << t.id1 << ',' << t.id2 << endl;
-		fasta.close();
-		return true;
-	}
-
-	else
-	{
-		cout << endl << "No input file specified. Correct usage is  $ <executable name> "
-			<< "<input file containing both s1 and s2> <0: global, 1: local> <optional: path to parameters config file>"
-			<< endl;
-		return false;
-	}
-}
-
-config getConfig(int argc, char *argv[])
-{
-	ifstream conFile;
-	string filename;
-	config c;
-
-	if (argc == 4)
-	{
-		cout << argv[3];
-		filename = argv[3];
-	}
-	else
-	{
-		filename = "parameters.config";
-		cout << "Default file: " << filename << " opened." << endl;
-	}
-
-	conFile.open(filename, ios::in);
-	if (!conFile.good())
-	{
-		cout << endl << filename << " not found. All paremters default to 0." << endl;
-		return c;
-	}
-
-	string line;
-	while (getline(conFile, line))
-	{
-		stringstream s(line);
-		string tmp1;
-		string tmp2;
-		while (!s.eof()) {
-			s >> tmp1;
-			s >> tmp2;
-		} //cout << tmp1 << tmp2 << endl;
-		if (tmp1 == "match")
-		{
-			c.matchScore = stoi(tmp2);
-		}
-		if (tmp1 == "mismatch")
-		{
-			c.mismatchScore = stoi(tmp2);
-		}
-		if (tmp1 == "h")
-		{
-			c.startGapScore = stoi(tmp2);
-		}
-		if (tmp1 == "g")
-		{
-			c.continueGapScore = stoi(tmp2);
-		}
-	}
-
-	return c;
-}
 
 int getAlignmentType(int argc, char *argv[])
 {
@@ -369,25 +355,6 @@ int maximum(int S, int D, int I, int alignmentType)
 	return max;
 }
 
-/*
-int maximum2(int S, int D, int I, int alignmentType, DP_cell &c)
-{
-int max = S;
-c.dir = 2;
-if (D > max)
-{
-max = D;
-c.dir = 3;
-}
-if (I > max)
-{
-max = I;
-c.dir = 1;
-}
-if (alignmentType == 1 && max < 0) max = 0;
-return max;
-}
-*/
 
 int subFunction(char a, char b, config c)
 {

@@ -2,8 +2,9 @@
 
 #include "includes.h"
 
-struct config
+class config
 {
+public:
 	int matchScore = 0;
 	int mismatchScore = 0;
 	int startGapScore = 0; //h
