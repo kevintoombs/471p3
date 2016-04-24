@@ -2,6 +2,23 @@
 
 using namespace std;
 
+
+
+DP_table::DP_table()
+{
+}
+
+DP_table::DP_table(std::string fasta, std::string config, int type)
+{
+	this->alightmentType = type;
+	this->c = config::getConfig(config);
+	parseFasta(fasta);
+
+	buildTable();
+	calcTable();
+	//retrace();
+}
+
 bool DP_table::parseFasta(string fileName)
 {
 	ifstream fasta;
@@ -32,7 +49,7 @@ bool DP_table::parseFasta(string fileName)
 				else if (!isspace(ch))
 				{
 					this->id1 += ch;
-					//cout << t.id1 << endl;
+					//cout << this->id1 << endl;
 				}
 			}
 
@@ -59,7 +76,7 @@ bool DP_table::parseFasta(string fileName)
 				else if (!isspace(ch))
 				{
 					this->id2 += ch;
-					//cout << t.id2 << endl;
+					//cout << this->id2 << endl;
 				}
 			}
 
@@ -68,8 +85,8 @@ bool DP_table::parseFasta(string fileName)
 				if (ch == 'A' || ch == 'C' || ch == 'G' || ch == 'T' || ch == 'a' || ch == 'c' || ch == 'g' || ch == 't')
 				{
 					this->sequence1 += toupper(ch);
-					//cout << t.sequence1 << endl;
-					//cout << t.sequence1.length() << endl;
+					//cout << this->sequence1 << endl;
+					//cout << this->sequence1.length() << endl;
 				}
 				if (ch == '>')
 				{
@@ -91,8 +108,8 @@ bool DP_table::parseFasta(string fileName)
 				if (ch == 'A' || ch == 'C' || ch == 'G' || ch == 'T' || ch == 'a' || ch == 'c' || ch == 'g' || ch == 't')
 				{
 					this->sequence2 += toupper(ch);
-					//cout << t.sequence2 << endl;
-					//cout << t.sequence2.length() << endl;
+					//cout << this->sequence2 << endl;
+					//cout << this->sequence2.length() << endl;
 				}
 				//cout << ch;
 				if (ch == '>') {
@@ -103,7 +120,7 @@ bool DP_table::parseFasta(string fileName)
 
 		}
 
-		//cout << t.id1 << ',' << t.id2 << endl;
+		//cout << this->id1 << ',' << this->id2 << endl;
 		fasta.close();
 		return true;
 	}
@@ -117,144 +134,91 @@ bool DP_table::parseFasta(string fileName)
 	}
 }
 
-config getConfig(int argc, char *argv[])
+void DP_table::setAlignmentType(char* arg)
 {
-	ifstream conFile;
-	string filename;
-	config c;
-
-	if (argc == 4)
-	{
-		cout << argv[3];
-		filename = argv[3];
-	}
-	else
-	{
-		filename = "parameters.config";
-		cout << "Default file: " << filename << " opened." << endl;
-	}
-
-	conFile.open(filename, ios::in);
-	if (!conFile.good())
-	{
-		cout << endl << filename << " not found. All paremters default to 0." << endl;
-		return c;
-	}
-
-	string line;
-	while (getline(conFile, line))
-	{
-		stringstream s(line);
-		string tmp1;
-		string tmp2;
-		while (!s.eof()) {
-			s >> tmp1;
-			s >> tmp2;
-		} //cout << tmp1 << tmp2 << endl;
-		if (tmp1 == "match")
-		{
-			c.matchScore = stoi(tmp2);
-		}
-		if (tmp1 == "mismatch")
-		{
-			c.mismatchScore = stoi(tmp2);
-		}
-		if (tmp1 == "h")
-		{
-			c.startGapScore = stoi(tmp2);
-		}
-		if (tmp1 == "g")
-		{
-			c.continueGapScore = stoi(tmp2);
-		}
-	}
-
-	return c;
+	//argv[2]
+	this->alightmentType = atoi(arg);
 }
 
-//DONE: above
-///NEED TO TRANSFER TO DP_TABLE:: below
-
-int demo(int argc, char *argv[])
+void DP_table::setAlignmentType(int type)
 {
-
-	DP_table t;
-	t.alightmentType = getAlignmentType(argc, argv);
-	t.c = getConfig(argc, argv);
-	if (!t.parseFasta(argv[1]))
-	{
-		cin.ignore();
-		return 1;
-	}
-
-	printf("Scores: Match = %i, Mismatch = %i, h = %i, g = %i\n", t.c.matchScore, t.c.mismatchScore, t.c.startGapScore, t.c.continueGapScore);
-	cout << endl;
-
-	cout << "Sequence 1 = \"" << t.id1;
-	printf("\", length = %i characters\n", (int)t.sequence1.length());
-	cout << "Sequence 2 = \"" << t.id2;
-	printf("\", length = %i characters\n", (int)t.sequence2.length());
-	cout << endl;
-
-	buildTable(t);
-	calcTable(t);
-
-	retrace(t);
-
-	//printTable(t);
-
-	return 0;
+	this->alightmentType = type;
 }
 
-void buildTable(DP_table &t)
+void DP_table::buildTable()
 {
-	printf("Building Table.");
+	//printf("Building Table.");
 	DP_cell c;
-	t.t.resize(t.sequence1.length() + 1, vector<DP_cell>(t.sequence2.length() + 1, c));
-	cout << endl;
-	initTable(t);
+	this->t.resize(this->sequence1.length() + 1, vector<DP_cell>(this->sequence2.length() + 1, c));
+	//cout << endl;
+	initTable();
 
 	return;
 }
 
-void calcTable(DP_table &t)
+void DP_table::initTable()
+{
+	int h = this->c.startGapScore;
+	int g = this->c.continueGapScore;
+
+	this->t[0][0].S = 0;
+	this->t[0][0].D = -1147483648;
+	this->t[0][0].I = -1147483648;
+
+	for (size_t i = 1; i <= this->sequence1.length(); i++)
+	{
+		this->t[i][0].S = -1147483648;
+		this->t[i][0].D = h + (int)i * g;
+		this->t[i][0].I = -1147483648;
+		this->t[i][0].dDir = 2;
+	}
+	for (size_t j = 1; j <= this->sequence2.length(); j++)
+	{
+		this->t[0][j].S = -1147483648;
+		this->t[0][j].D = -1147483648;
+		this->t[0][j].I = h + (int)j * g;
+		this->t[0][j].iDir = 3;
+	}
+}
+
+void DP_table::calcTable()
 {
 
 	int maxValue = 0;
 	tuple<int, int> maxPair;
 
-	printf("Calculating Table[rows remaining]:");
-	for (size_t i = 1; i <= t.sequence1.length(); i++)
+	//printf("Calculating Table[rows remaining]:");
+	for (size_t i = 1; i <= this->sequence1.length(); i++)
 	{
-		if (i % ((t.sequence1.length() / 100) + 1) == 0) printf("[%i]", (int)t.sequence1.length() - (int)i);
-		for (size_t j = 1; j <= t.sequence2.length(); j++)
+		//if (i % ((this->sequence1.length() / 100) + 1) == 0) printf("[%i]", (int)this->sequence1.length() - (int)i);
+		for (size_t j = 1; j <= this->sequence2.length(); j++)
 		{
-			int sSub = subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c);
-			DP_cell subCell = t.t[i - 1][j - 1];
-			DP_cell deleteCell = t.t[i - 1][j];
-			DP_cell insertCell = t.t[i][j - 1];
+			int sSub = subFunction(this->sequence1[i - 1], this->sequence2[j - 1], this->c);
+			DP_cell subCell = this->t[i - 1][j - 1];
+			DP_cell deleteCell = this->t[i - 1][j];
+			DP_cell insertCell = this->t[i][j - 1];
 
 
-			t.t[i][j].S = maximum(subCell.S + sSub, subCell.D + sSub, subCell.I + sSub, t.alightmentType);
-			if (t.t[i][j].S == subCell.S + sSub) t.t[i][j].sDir = 1;
-			else if (t.t[i][j].S == subCell.D + sSub) t.t[i][j].sDir = 2;
-			else if (t.t[i][j].S == subCell.I + sSub) t.t[i][j].sDir = 3;
-			t.t[i][j].D = maximum
-				(deleteCell.S + t.c.startGapScore + t.c.continueGapScore,
-					deleteCell.D + t.c.continueGapScore,
-					deleteCell.I + t.c.startGapScore + t.c.continueGapScore,
-					t.alightmentType);
-			if (t.t[i][j].D == deleteCell.S + t.c.startGapScore + t.c.continueGapScore) t.t[i][j].dDir = 1;
-			else if (t.t[i][j].D == deleteCell.D + t.c.continueGapScore) t.t[i][j].dDir = 2;
-			else if (t.t[i][j].D == deleteCell.I + t.c.startGapScore + t.c.continueGapScore) t.t[i][j].dDir = 3; //the bug is not here though. (still never called)
-			t.t[i][j].I = maximum
-				(insertCell.S + t.c.startGapScore + t.c.continueGapScore,
-					insertCell.D + t.c.startGapScore + t.c.continueGapScore, //FIXED//this is a bug lol, but it is like an impossible condition.
-					insertCell.I + t.c.continueGapScore,
-					t.alightmentType);
-			if (t.t[i][j].I == insertCell.S + t.c.startGapScore + t.c.continueGapScore) t.t[i][j].iDir = 1;
-			else if (t.t[i][j].I == insertCell.D + t.c.startGapScore + t.c.continueGapScore) t.t[i][j].iDir = 2; //FIXED//saaaame bug.
-			else if (t.t[i][j].I == insertCell.I + t.c.continueGapScore) t.t[i][j].iDir = 3;
+			this->t[i][j].S = maximum(subCell.S + sSub, subCell.D + sSub, subCell.I + sSub, this->alightmentType);
+			if (this->t[i][j].S == subCell.S + sSub) this->t[i][j].sDir = 1;
+			else if (this->t[i][j].S == subCell.D + sSub) this->t[i][j].sDir = 2;
+			else if (this->t[i][j].S == subCell.I + sSub) this->t[i][j].sDir = 3;
+			this->t[i][j].D = maximum
+				(deleteCell.S + this->c.startGapScore + this->c.continueGapScore,
+					deleteCell.D + this->c.continueGapScore,
+					deleteCell.I + this->c.startGapScore + this->c.continueGapScore,
+					this->alightmentType);
+			if (this->t[i][j].D == deleteCell.S + this->c.startGapScore + this->c.continueGapScore) this->t[i][j].dDir = 1;
+			else if (this->t[i][j].D == deleteCell.D + this->c.continueGapScore) this->t[i][j].dDir = 2;
+			else if (this->t[i][j].D == deleteCell.I + this->c.startGapScore + this->c.continueGapScore) this->t[i][j].dDir = 3; //the bug is not here though. (still never called)
+			this->t[i][j].I = maximum
+				(insertCell.S + this->c.startGapScore + this->c.continueGapScore,
+					insertCell.D + this->c.startGapScore + this->c.continueGapScore, //FIXED//this is a bug lol, but it is like an impossible condition.
+					insertCell.I + this->c.continueGapScore,
+					this->alightmentType);
+			if (this->t[i][j].I == insertCell.S + this->c.startGapScore + this->c.continueGapScore) this->t[i][j].iDir = 1;
+			else if (this->t[i][j].I == insertCell.D + this->c.startGapScore + this->c.continueGapScore) this->t[i][j].iDir = 2; //FIXED//saaaame bug.
+			else if (this->t[i][j].I == insertCell.I + this->c.continueGapScore) this->t[i][j].iDir = 3;
 			// s.i = I + G is above, was I + H before. This bug was so hard to track down for a couple reasons. I'll detail what I think they are.
 			// First. We were taught in class that you put the shorter string as your s2 so that your space complexity is not quadratic.
 			//		My implementation takes almost 4GB's in debug after I implemented retrace (it was 2 before, like Ananth said).
@@ -265,82 +229,37 @@ void calcTable(DP_table &t)
 			// Third: my naming convention is just bad! I also should have kept ordering consitant. 
 			// Fourth: It really is just a rare call for the alignment. I can't imagine many cases where we wouldn't just be better off doing a mismatch in the 
 			//		first place. This is shown by the fact that it only caused the final number to be off by %10 in all of those calculations.
-			if (t.alightmentType == 1)
+			if (this->alightmentType == 1)
 			{
-				int thisMax = cellMax(t.t[i][j]);
+				int thisMax = this->t[i][j].cellMax();
 				if (thisMax > maxValue)
 				{
 					maxValue = thisMax;
 					maxPair = make_tuple(i, j);
-					t.maxPair = maxPair;
+					this->maxPair = maxPair;
 				}
 			}
 		}
 	}
-	cout << endl << endl;
+	//cout << endl << endl;
 
 }
 
-void initTable(DP_table &t)
+int DP_cell::cellMax()
 {
-	int h = t.c.startGapScore;
-	int g = t.c.continueGapScore;
-
-	t.t[0][0].S = 0;
-	t.t[0][0].D = -1147483648;
-	t.t[0][0].I = -1147483648;
-
-	for (size_t i = 1; i <= t.sequence1.length(); i++)
+	int max = this->S;
+	if (this->D > max)
 	{
-		t.t[i][0].S = -1147483648;
-		t.t[i][0].D = h + (int)i * g;
-		t.t[i][0].I = -1147483648;
-		t.t[i][0].dDir = 2;
+		max = this->D;
 	}
-	for (size_t j = 1; j <= t.sequence2.length(); j++)
+	if (this->I > max)
 	{
-		t.t[0][j].S = -1147483648;
-		t.t[0][j].D = -1147483648;
-		t.t[0][j].I = h + (int)j * g;
-		t.t[0][j].iDir = 3;
-	}
-}
-
-
-
-int getAlignmentType(int argc, char *argv[])
-{
-	if (argc >= 3)
-	{
-		int i = stoi(argv[2]);
-		//cout << "Alignment type (0:global, 1:local): " << i << endl << endl;
-		return i;
-	}
-	else
-	{
-		cout << endl << "Correct usage is  $ <executable name> <input file containing both s1 and s2> "
-			<< "<0: global, 1: local> <optional: path to parameters config file>"
-			<< endl;
-	}
-
-	return 0;
-}
-
-int cellMax(DP_cell c)
-{
-	int max = c.S;
-	if (c.D > max)
-	{
-		max = c.D;
-	}
-	if (c.I > max)
-	{
-		max = c.I;
+		max = this->I;
 	}
 	return max;
 }
 
-int maximum(int S, int D, int I, int alignmentType)
+int DP_table::maximum(int S, int D, int I, int alignmentType)
 {
 	int max = S;
 	if (D > max)
@@ -355,8 +274,7 @@ int maximum(int S, int D, int I, int alignmentType)
 	return max;
 }
 
-
-int subFunction(char a, char b, config c)
+int DP_table::subFunction(char a, char b, config c)
 {
 	if (a == b)
 	{
@@ -368,12 +286,12 @@ int subFunction(char a, char b, config c)
 	}
 }
 
-void printTable(DP_table &t)
+void DP_table::printTable()
 {
 	int m = 0;
-	int a = t.alightmentType;
-	int s1length = (int)t.sequence1.length();
-	int s2length = (int)t.sequence2.length();
+	int a = this->alightmentType;
+	int s1length = (int)this->sequence1.length();
+	int s2length = (int)this->sequence2.length();
 
 	cout << " X";
 	for (int j = 0; j <= /*20/**/s2length; j++) //do min(100, slength)
@@ -386,7 +304,7 @@ void printTable(DP_table &t)
 		printf("%2d", i);
 		for (int j = 0; j <= /*20/**/s2length; j++) //do min(100, slength)
 		{
-			DP_cell c = t.t[i][j];
+			DP_cell c = this->t[i][j];
 			if (c.S >= -100) { printf("|%3d", c.S); }
 			else printf("| - ");
 			if (c.D >= -100) { printf(" %3d", c.D); }
@@ -398,7 +316,7 @@ void printTable(DP_table &t)
 	}
 }
 
-void retrace(DP_table &t)
+void DP_table::retrace()
 {
 	//cout << "retrace\n";
 	int matches = 0, mismatches = 0, gaps = 0, openingGaps = 0;
@@ -406,97 +324,33 @@ void retrace(DP_table &t)
 	int lastDir = -1;
 	int counter = 0;
 	stack<char> s1, s2, r;
-	int i = (int)t.sequence1.length();
-	int j = (int)t.sequence2.length();
+	int i = (int)this->sequence1.length();
+	int j = (int)this->sequence2.length();
 
-	if (t.alightmentType == 1)
+	if (this->alightmentType == 1)
 	{
-		i = get<0>(t.maxPair);
-		j = get<1>(t.maxPair);
+		i = get<0>(this->maxPair);
+		j = get<1>(this->maxPair);
 	}
 
 
 	cout << "reverse dirs" << endl;
-	DP_cell c = t.t[i][j];
+	DP_cell c = this->t[i][j];
 	int dirSDI = 0;
-	int max = cellMax(c);
+	int max = c.cellMax();
 	if (max == c.S) dirSDI = 1;
 	if (max == c.D) dirSDI = 2;
 	if (max == c.I) dirSDI = 3;
-	int moveDir = cellMax2(c, max, dirSDI);
+	int moveDir = c.cellMax2(max, dirSDI);
 	while (i > 0 || j > 0)
 	{
-		if (t.alightmentType == 1 && cellMax(t.t[i][j]) == 0)
+		if (this->alightmentType == 1 && this->t[i][j].cellMax() == 0)
 		{
-			DP_cell subCell = t.t[i - 1][j - 1];
-			DP_cell deleteCell = t.t[i - 1][j];
-			DP_cell insertCell = t.t[i][j - 1];
+			DP_cell subCell = this->t[i - 1][j - 1];
+			DP_cell deleteCell = this->t[i - 1][j];
+			DP_cell insertCell = this->t[i][j - 1];
 			break;
 		}
-
-		//dir = direction(t, i, j); // move to end
-		/*//DIRBLOCK
-		if (i != 0) //d
-		{
-		DP_cell deleteCell = t.t[i - 1][j];
-		int testValue1 = deleteCell.S + t.c.startGapScore + t.c.continueGapScore;
-		int testValue2 = deleteCell.D + t.c.continueGapScore;
-		int testValue3 = deleteCell.I + t.c.startGapScore + t.c.continueGapScore;
-
-		if (max == testValue1)
-		{
-		dir = 2;
-		}
-		if (max == testValue2)
-		{
-		dir = 2;
-		}
-		if (max == testValue3)
-		{
-		dir = 2;
-		}
-		}
-		if (j != 0) //i
-		{
-		DP_cell insertCell = t.t[i][j - 1];
-		int testValue1 = insertCell.S + t.c.startGapScore + t.c.continueGapScore;
-		int testValue2 = insertCell.D + t.c.startGapScore + t.c.continueGapScore;
-		int testValue3 = insertCell.I + t.c.continueGapScore;
-
-		if (max == testValue1)
-		{
-		dir = 3;
-		}
-		if (max == testValue2)
-		{
-		dir = 3;
-		}
-		if (max == testValue3)
-		{
-		dir = 3;
-		}
-		}
-		if (i != 0 && j != 0) //s
-		{
-		DP_cell subCell = t.t[i - 1][j - 1];
-		int sSub = subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c);
-		int testValue1 = cellMax(subCell) + sSub;
-
-		if (max == testValue1)
-		{
-		dir = 1;
-		}
-		}
-		if (dir == 0)
-		{
-		break;
-		}
-		//ENDDIRBLOCK*/
-
-		//cout << "  [" << lastValue << "to" << max <<"]  ";
-		//cout << dirSDI;
-		//if (++counter % 6 == 0) cout << endl;
-
 
 		if (moveDir == 1) //s 
 		{
@@ -505,9 +359,9 @@ void retrace(DP_table &t)
 
 			if (i >= 0 && j >= 0)
 			{
-				s1.push(t.sequence1[i]);
-				s2.push(t.sequence2[j]);
-				if (subFunction(t.sequence1[i], t.sequence2[j], t.c) > 0)
+				s1.push(this->sequence1[i]);
+				s2.push(this->sequence2[j]);
+				if (DP_table::subFunction(this->sequence1[i], this->sequence2[j], this->c) > 0)
 				{
 					matches++;
 					r.push('|');
@@ -526,7 +380,7 @@ void retrace(DP_table &t)
 			i--;
 			s2.push('-');
 			r.push(' ');
-			s1.push(t.sequence1[i]);
+			s1.push(this->sequence1[i]);
 			if (lastDir == moveDir)
 			{
 				gaps++;
@@ -543,7 +397,7 @@ void retrace(DP_table &t)
 		{
 			j--;
 			s1.push('-');
-			s2.push(t.sequence2[j]);
+			s2.push(this->sequence2[j]);
 			r.push(' ');
 			if (lastDir == moveDir)
 			{
@@ -560,14 +414,14 @@ void retrace(DP_table &t)
 		lastDir = moveDir;
 
 		//c is the cell we moved into based on where (S/D/I) the cell got its value from
-		c = t.t[i][j];
+		c = this->t[i][j];
 
 		//find the appropriate value in this cell based in the dir arrow from the last S/D/I value
 		int find = 0;
 		if (dirSDI == 1) find = c.S;
 		if (dirSDI == 2) find = c.D;
 		if (dirSDI == 3) find = c.I;
-		moveDir = cellMax2(c, find, dirSDI);
+		moveDir = c.cellMax2(find, dirSDI);
 
 		printf("Moving to %i, for %i\n", moveDir, dirSDI);
 
@@ -607,46 +461,46 @@ void retrace(DP_table &t)
 	}
 	cout << endl;
 
-	c = t.t[i][j];
+	c = this->t[i][j];
 
 	cout << "Report:\n\n";
-	if (t.alightmentType == 0)/**/ printf("Global optimal score = %i.\n", cellMax(t.t[t.sequence1.size()][t.sequence2.size()]));
-	if (t.alightmentType == 1)/**/ printf("Local optimal score = %i found at %i,%i.\n", cellMax(t.t[get<0>(t.maxPair)][get<1>(t.maxPair)]), get<0>(t.maxPair), get<1>(t.maxPair));
+	if (this->alightmentType == 0)/**/ printf("Global optimal score = %i.\n", this->t[this->sequence1.size()][this->sequence2.size()].cellMax());
+	if (this->alightmentType == 1)/**/ printf("Local optimal score = %i found at %i,%i.\n", this->t[get<0>(this->maxPair)][get<1>(this->maxPair)].cellMax(), get<0>(this->maxPair), get<1>(this->maxPair));
 	printf("Number of:  matches = %i, mismatches = %i, gaps = %i, opening gaps = %i\n", matches, mismatches, gaps, openingGaps);
 	float total = (float)gaps + (float)matches + (float)mismatches;
 	float identities = (float)matches + (float)mismatches;
 	float p1 = 100 * identities / total;
 	float p2 = 100 * gaps / total;
 	printf("Identities = %.0f/%.0f (%2.1f percent), Gaps = %i/%.0f (%2.1f percent)\n", identities, total, p1, gaps, total, p2);
-	printf("Sanity Check: %i = ", matches * t.c.matchScore + mismatches * t.c.mismatchScore + gaps * t.c.continueGapScore + openingGaps * t.c.startGapScore);
-	printf("%i * %i + %i * %i + %i * %i + %i * %i\n\n", matches, t.c.matchScore, mismatches, t.c.mismatchScore, gaps, t.c.continueGapScore, openingGaps, t.c.startGapScore);
+	printf("Sanity Check: %i = ", matches * this->c.matchScore + mismatches * this->c.mismatchScore + gaps * this->c.continueGapScore + openingGaps * this->c.startGapScore);
+	printf("%i * %i + %i * %i + %i * %i + %i * %i\n\n", matches, this->c.matchScore, mismatches, this->c.mismatchScore, gaps, this->c.continueGapScore, openingGaps, this->c.startGapScore);
 	return;
 }
 
-int direction(DP_table &t, int i, int j)
+int DP_table::direction(int i, int j)
 {
 	//1 = S, 2 = D, 3 = I 
 	if (j == 0) return 3;
 	if (i == 0) return 1;
 
-	DP_cell c = t.t[i][j];
-	DP_cell subCell = t.t[i - 1][j - 1];
-	DP_cell deleteCell = t.t[i - 1][j];
-	DP_cell insertCell = t.t[i][j - 1];
+	DP_cell c = this->t[i][j];
+	DP_cell subCell = this->t[i - 1][j - 1];
+	DP_cell deleteCell = this->t[i - 1][j];
+	DP_cell insertCell = this->t[i][j - 1];
 
-	int tv1 = cellMax(subCell);
-	int tv2 = cellMax(deleteCell);
-	int tv3 = cellMax(insertCell);
+	int tv1 = subCell.cellMax();
+	int tv2 = deleteCell.cellMax();
+	int tv3 = insertCell.cellMax();
 
 
 	DP_cell fromCell;
-	int max = cellMax(c);
+	int max = c.cellMax();
 
 	int dir = 0;
 
 	if (i != 0 && j != 0) //s 
 	{
-		int sSub = subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c);
+		int sSub = DP_table::subFunction(this->sequence1[i - 1], this->sequence2[j - 1], this->c);
 
 		if (max == tv1 + sSub)
 		{
@@ -656,9 +510,9 @@ int direction(DP_table &t, int i, int j)
 	}
 	if (i != 0) //d 
 	{
-		int testValue1 = deleteCell.S + t.c.startGapScore + t.c.continueGapScore;
-		int testValue2 = deleteCell.D + t.c.continueGapScore;
-		int testValue3 = deleteCell.I + t.c.startGapScore + t.c.continueGapScore;
+		int testValue1 = deleteCell.S + this->c.startGapScore + this->c.continueGapScore;
+		int testValue2 = deleteCell.D + this->c.continueGapScore;
+		int testValue3 = deleteCell.I + this->c.startGapScore + this->c.continueGapScore;
 
 		if (max == testValue1 || max == testValue2 /*|| max == testValue3*/)
 		{
@@ -668,9 +522,9 @@ int direction(DP_table &t, int i, int j)
 	}
 	if (j != 0) //i
 	{
-		int testValue1 = insertCell.S + t.c.startGapScore + t.c.continueGapScore;
-		int testValue2 = insertCell.D + t.c.startGapScore + t.c.continueGapScore;
-		int testValue3 = insertCell.I + t.c.continueGapScore;
+		int testValue1 = insertCell.S + this->c.startGapScore + this->c.continueGapScore;
+		int testValue2 = insertCell.D + this->c.startGapScore + this->c.continueGapScore;
+		int testValue3 = insertCell.I + this->c.continueGapScore;
 
 		if (max == testValue1 || max == testValue3 /*|| max == testValue2*/)
 		{
@@ -684,22 +538,78 @@ int direction(DP_table &t, int i, int j)
 		exit(2);
 	}
 
-	//testDirection(max, c, t.c, dir, i, j, t);
+	//testDirection(max, c, this->c, dir, i, j, t);
 	return dir;
 }
 
+//DONE: above
+///NEED TO TRANSFER TO DP_TABLE:: below
+
+int DP_table::demo(char* fastaFile, char* configFile, char* typeText)
+{
+
+	DP_table t;
+	t.setAlignmentType(typeText);
+	t.c = config::getConfig(configFile);
+	if (!t.parseFasta(fastaFile))
+	{
+		cin.ignore();
+		return 1;
+	}
+
+	printf("Scores: Match = %i, Mismatch = %i, h = %i, g = %i\n", t.c.matchScore, t.c.mismatchScore, t.c.startGapScore, t.c.continueGapScore);
+	cout << endl;
+
+	cout << "Sequence 1 = \"" << t.id1;
+	printf("\", length = %i characters\n", (int)t.sequence1.length());
+	cout << "Sequence 2 = \"" << t.id2;
+	printf("\", length = %i characters\n", (int)t.sequence2.length());
+	cout << endl;
+
+	t.buildTable();
+	t.calcTable();
+
+	t.retrace();
+
+	//printTable(t);
+	cout << "Press enter to exit." << endl;
+	cin.ignore();
+	return 0;
+}
+
+void DP_table::demoTable()
+{
+
+	printf("Scores: Match = %i, Mismatch = %i, h = %i, g = %i\n", this->c.matchScore, this->c.mismatchScore, this->c.startGapScore, this->c.continueGapScore);
+	cout << endl;
+
+	cout << "Sequence 1 = \"" << this->id1;
+	printf("\", length = %i characters\n", (int)this->sequence1.length());
+	cout << "Sequence 2 = \"" << this->id2;
+	printf("\", length = %i characters\n", (int)this->sequence2.length());
+	cout << endl;
+
+
+	this->retrace();
+
+	//printTable(t);
+	cout << "Press enter to exit." << endl;
+	cin.ignore();
+}
+
+
 //a + b = c
-void testDirection(int lastValue, DP_cell to, config c, int dir, int i, int j, DP_table &t)
+void DP_table::testDirection(int lastValue, DP_cell to, int dir, int i, int j)
 {
 	//1 = S, 2 = D, 3 = I 
 	bool y = true;
-	char a = t.sequence1[i];
-	char b = t.sequence2[j];
+	char a = this->sequence1[i];
+	char b = this->sequence2[j];
 
 	if (dir == 2)
 	{
-		int sSub = subFunction(t.sequence1[i - 1], t.sequence2[j - 1], t.c);
-		y = cellMax(to) == lastValue;
+		int sSub = DP_table::subFunction(this->sequence1[i - 1], this->sequence2[j - 1], this->c);
+		y = to.cellMax() == lastValue;
 	}
 	else if (dir == 1)
 	{
@@ -711,7 +621,7 @@ void testDirection(int lastValue, DP_cell to, config c, int dir, int i, int j, D
 		y = true;
 	}
 
-	cout << "[" << lastValue << " dir(" << 0 << ")" << cellMax(to) << "]";
+	cout << "[" << lastValue << " dir(" << 0 << ")" << to.cellMax() << "]";
 	if (!y)
 	{
 
@@ -719,26 +629,26 @@ void testDirection(int lastValue, DP_cell to, config c, int dir, int i, int j, D
 	}
 }
 
-int cellMax2(DP_cell &c, int find, int &mDir)
+int DP_cell::cellMax2(int find, int &mDir)
 {
 	int SDI = mDir;
 	//printf("cout lol %i", "\n");
-	if (find == c.S && SDI == 1)
+	if (find == this->S && SDI == 1)
 	{
 		cout << "(found " << find << ") ";
-		mDir = c.sDir;
+		mDir = this->sDir;
 		return 1;
 	}
-	if (find == c.D && SDI == 2)
+	if (find == this->D && SDI == 2)
 	{
 		cout << "(found " << find << ") ";
-		mDir = c.dDir;
+		mDir = this->dDir;
 		return 2;
 	}
-	if (find == c.I && SDI == 3)
+	if (find == this->I && SDI == 3)
 	{
 		cout << "(found " << find << ") ";
-		mDir = c.iDir;
+		mDir = this->iDir;
 		return 3;
 	}
 	int r = 12;

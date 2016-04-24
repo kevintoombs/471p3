@@ -9,6 +9,9 @@ public:
 	int mismatchScore = 0;
 	int startGapScore = 0; //h
 	int continueGapScore = 0; //g
+
+	static config getConfig(int argc, char * argv[]);
+	static config getConfig(std::string fileName);
 };
 
 class Alphabet

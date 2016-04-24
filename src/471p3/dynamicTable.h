@@ -10,6 +10,10 @@ public:
 	int D = -1147483648;// numeric_limits<int>::min();
 	int I = -1147483648;// numeric_limits<int>::min();
 	int sDir = -1, dDir = -1, iDir = -1;
+
+	int cellMax();
+	int cellMax2(int find, int &mDir);
+
 };
 
 class DP_table
@@ -22,24 +26,23 @@ public:
 	int alightmentType;
 	std::tuple<int, int> maxPair;
 
+	DP_table();
+	DP_table(std::string fasta, std::string config, int type);
+
 	bool parseFasta(std::string filename);
+	void setAlignmentType(char* arg);
+	void setAlignmentType(int type);
+	void buildTable();
+	void initTable();
+	void calcTable();
+	void printTable();
+	void retrace();
+	int direction(int i, int j);
+	void testDirection(int lastValue, DP_cell to, int dir, int i, int j);
+	void demoTable();
 
+	static int maximum(int S, int D, int I, int alignmentType);
+	static int subFunction(char a, char b, config c);
+	static int demo(char* fastaFile, char* configFile, char* typeText);
+	
 };
-
-
-
-int getAlignmentType(int argc, char *argv[]);
-int demo(int argc, char * argv[]);
-void buildTable(DP_table &t);
-void initTable(DP_table &t);
-void calcTable(DP_table &t);
-int maximum(int S, int D, int I, int alignmentType);
-int subFunction(char a, char b, config c);
-void printTable(DP_table &t);
-void retrace(DP_table &t);
-void recursivelyPrintChildren(DP_table &t, int i, int j);
-int direction(DP_table &t, int i, int j);
-int maximum2(DP_cell &c, int &mDir);
-int cellMax(DP_cell c);
-void testDirection(int lastValue, DP_cell to, config c, int dir, int i, int j, DP_table &t);
-int cellMax2(DP_cell &c, int find, int &mDir);

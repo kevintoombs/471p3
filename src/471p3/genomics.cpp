@@ -2,6 +2,70 @@
 
 using namespace std;
 
+config config::getConfig(int argc, char *argv[])
+{
+	
+	string filename;
+	
+
+	if (argc == 4)
+	{
+		cout << argv[3];
+		filename = argv[3];
+	}
+	else
+	{
+		filename = "parameters.config";
+		cout << "Default file: " << filename << " opened." << endl;
+	}
+
+	return getConfig(filename);
+	
+}
+
+config config::getConfig(string fileName)
+{
+	ifstream conFile;
+	config c;
+
+	conFile.open(fileName, ios::in);
+	if (!conFile.good())
+	{
+		cout << endl << fileName << " not found. All paremters default to 0." << endl;
+		return c;
+	}
+
+	string line;
+	while (getline(conFile, line))
+	{
+		stringstream s(line);
+		string tmp1;
+		string tmp2;
+		while (!s.eof()) {
+			s >> tmp1;
+			s >> tmp2;
+		} //cout << tmp1 << tmp2 << endl;
+		if (tmp1 == "match")
+		{
+			c.matchScore = stoi(tmp2);
+		}
+		if (tmp1 == "mismatch")
+		{
+			c.mismatchScore = stoi(tmp2);
+		}
+		if (tmp1 == "h")
+		{
+			c.startGapScore = stoi(tmp2);
+		}
+		if (tmp1 == "g")
+		{
+			c.continueGapScore = stoi(tmp2);
+		}
+	}
+
+	return c;
+}
+
 Alphabet::Symbol::Symbol(char s)
 {
 	this->sym = s;
