@@ -33,15 +33,15 @@ McSuffixTree::McSuffixTree(char* fasta, char* alphabet)
 {
 	string inputString = Sequence::parseFasta(fasta); //input argument one should be a fasta input file
 	Alphabet a = Alphabet::parseAlphabet(alphabet, '$'); //input argument two should be an alphabet file
-	s = inputString;
+	s = inputString + a.rootDelimiter->sym;
 	sigma = a;
 	init();
 
 														 //Tree is constructed from the given alphabet and string.
 	unsigned int start = clock();
 	McSuffixTree mST(inputString, a);
-	cout << "The tree took: " << clock() - start << "ms to build" << endl;
-	cout << endl;
+	//cout << "The tree took: " << clock() - start << "ms to build" << endl;
+	//cout << endl;
 
 	
 
@@ -456,6 +456,8 @@ void McSuffixTree::insertNode(Node *parent, int stringStart)
 	{
 		parent->child = new Node(stringStart, s.length() - stringStart + 1, parent->nodeDepth + 1, parent, ++nodes);
 		u = parent;
+		parent->child->suffixID = suffix;
+		suffix++;
 		//fixOrder(parent);
 		return;
 	}
@@ -471,6 +473,8 @@ void McSuffixTree::insertNode(Node *parent, int stringStart)
 				parent->child = n;
 				n->sibling = child;
 				u = parent;
+				n->suffixID = suffix;
+				suffix++;
 				return;
 			}
 			else if (s[stringStart - 1] < s[child->startIndex - 1])
@@ -479,6 +483,8 @@ void McSuffixTree::insertNode(Node *parent, int stringStart)
 				n->sibling = child;
 				prevChild->sibling = n;
 				u = parent;
+				n->suffixID = suffix;
+				suffix++;
 				return;
 			}
 			else
@@ -492,6 +498,8 @@ void McSuffixTree::insertNode(Node *parent, int stringStart)
 				Node* n = new Node(stringStart, s.length() - stringStart + 1, parent->nodeDepth + 1, parent, ++nodes);
 				prevChild->sibling = n;
 				u = parent;
+				n->suffixID = suffix;
+				suffix++;
 				return;
 			}
 		}

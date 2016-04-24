@@ -4,92 +4,90 @@
 #include "suffixTree.h"
 
 using namespace std;
-int P2main(char* fasta, char* alphabet);
+
+int PREPARE_NEXTINDEX;
+int MINLENGTH = -1;
+
+void PrepareST(McSuffixTree sT);
+void DFS_PrepareST(Node* T, int A[]);
+Node* lastSibling(Node* n);
 
 int main(int argc, char *argv[])
 {
 	//The below function shows the original functionality from program 1.
-	DP_table::demo(argv[1], argv[3], argv[2]);
+	//DP_table::demo(argv[1], argv[3], argv[2]);
 
 	//The two functions below are as follows
 	//1: creates a dp table from arguments
 	//2: demos that table like in program 1
-	DP_table t(argv[1], argv[3], atoi(argv[2]));
-	t.demoTable();
+	//DP_table t(argv[1], argv[3], atoi(argv[2]));
+	//t.demoTable();
 
 	//The below function shows the original functionality from program 2.
-	McSuffixTree::demo(argv[4], argv[5]);
+	//McSuffixTree::demo(argv[4], argv[5]);
 
 	//The two functions below are as follows
 	//1: creates a st from arguments
 	//2: demos that s2 like in program 2
 	McSuffixTree mST(argv[4], argv[5]);
-	mST.demoTree();
+	//mST.demoTree();
+	PrepareST(mST);
 
 	cin.ignore();
 	return 0;
 	
 }
 
-int P2main(char* fasta, char* alphabet)
+
+void PrepareST(McSuffixTree sT)
 {
-	string inputString = Sequence::parseFasta(fasta); //input argument one should be a fasta input file
-	Alphabet a = Alphabet::parseAlphabet(alphabet, '$'); //input argument two should be an alphabet file
+	//1. Create an array A of size n(string length of input + 1 for $), and initialize content with - 1.
+	int ci = sT.s.length() + 1;
+	int* A = new int[ci];
+	fill_n(A, ci, -1);
 
-														//Tree is constructed from the given alphabet and string.
-	unsigned int start = clock();
-	McSuffixTree mST(inputString, a);
-	cout << "The tree took: " << clock() - start << "ms to build" << endl;
-	cout << endl;
+	//2. Initialize a global integer variable nextIndex to the start of the A array(i.e., in all my pseudocodes I have been using start indices as 1. Please initialize this to 0 in your real code.) This variable represents the next index in A which has to be populated.
+	PREPARE_NEXTINDEX = 0;
 
-	cout << "TREE STATS" << endl;
-	cout << "Number of internal nodes: " << mST.nodes - mST.s.length() + 1 << endl; //cheating
-	cout << "Number of leaves: " << mST.s.length() << endl; //cheating
-	cout << "Number of total nodes: " << mST.nodes + 1 << endl;
-	cout << "sizeof() tree in bytes: " << sizeof(mST) << endl;
-	cout << endl;
+	//2. Call DFS_PrepareST(root, A); // where root is the root of the suffix tree of the reference genome
+	DFS_PrepareST(sT.root, A);
+	
+	return;
+	//delete[] A;
+}
 
-	srand((int)time(NULL));
-	cout << "PRINT SOME RANDOM CHILDREN" << endl;
-	cout << "==Showing children of node:" << 0 << endl;
-	mST.printNode(0);
-	for (int i = 1; i < 5; i++)
-	{
-		int randN = rand() % mST.nodes;
-		cout << "==Showing children of node:" << randN << endl;
-		mST.printNode(randN);
+void DFS_PrepareST(Node* T, int A[])
+{
+	if (T == NULL) return;
+	
+	if (T->child == NULL) {         // case: T is a leaf node
+		A[PREPARE_NEXTINDEX] = T->suffixID; //suffix ID of this leaf node;
+		if (McSuffixTree::deep(T) >= MINLENGTH) {
+			T->start_leaf_index = PREPARE_NEXTINDEX;
+			T->end_leaf_index = PREPARE_NEXTINDEX;
+		}
+		PREPARE_NEXTINDEX++;
+		DFS_PrepareST(T->sibling, A);
+		return;
+
 	}
-	cout << endl;
-
-	mST.findLCS();
-	cout << "longest matching repeat:\n" << mST.printString(mST.LCS) << endl;
-	cout << endl;
-	cout << "coords of longest matching repeat: " << mST.index1 << "," << mST.index2 << endl;
-	cout << "string-depth of deepest eternal node: " << mST.LCSdepth << endl;
-	float depthSum = (float)mST.depthSum;
-	float internalNodes = (float)(mST.nodes - mST.s.length() + 1);
-	float avgSDoIN = depthSum / internalNodes;
-	cout << "average string depth of internal nodes:" << avgSDoIN << endl;
-	cout << endl;
-
-
-	if (mST.s.length() < 100000)
+	else //case: T is an internal node
 	{
-		mST.printDFST();
-		cout << "DFST written to out file." << endl;
-		mST.BWT();
-		cout << "BWT written to out file" << endl;
+		DFS_PrepareST(T->child, A);
+		DFS_PrepareST(T->sibling, A);
+		if (McSuffixTree::deep(T) >= MINLENGTH) {
+			Node* u_left = T->child;
+			Node* u_right = lastSibling(T->child);
+			T->start_leaf_index = u_left->start_leaf_index;
+			T->end_leaf_index = u_right->end_leaf_index;
+		}
 	}
+}
+
+Node* lastSibling(Node* n)
+{
+	if (n->sibling == NULL)
+		return n;
 	else
-	{
-		cout << "Input string is at least 100000 characters" << endl;
-		cout << "Not outputting DFTS or BWT" << endl;
-	}
-	cout << endl;
-
-	cout << "Press enter to exit." << endl;
-	cin.ignore();
-	return 0;
-
-
+		return lastSibling(n->sibling);
 }

@@ -1,11 +1,7 @@
-P
-S
-S
-M
+A
+N
+N
+B
 $
-P
-I
-S
-S
-I
-I
+A
+A

@@ -11,12 +11,14 @@ public:
 	int nodeDepth = 0;
 
 	int nodeNumber = 0;
+	int suffixID = 0;
 
 	Node *parent = NULL;
 	Node *sL = NULL;
 	Node *child = NULL;
 	Node *sibling = NULL;
-
+	int start_leaf_index = -1; 
+	int end_leaf_index = -1;
 
 
 	Node();
@@ -45,6 +47,7 @@ public:
 
 	int depthSum = 0;
 	int DFSTcounter;
+	int suffix = 1;
 
 	McSuffixTree(std::string sIn, Alphabet aIn);
 
@@ -87,7 +90,7 @@ public:
 	//!(SL(u)) && (u' == root)
 	void case2b(Node *u, int i);
 
-	int deep(Node* n);
+	static int deep(Node* n);
 
 	void nodeHops(Node* vPrime, int betaStart, int betaLength);
 
