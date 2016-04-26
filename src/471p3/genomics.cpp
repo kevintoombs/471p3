@@ -142,6 +142,11 @@ Alphabet::Alphabet(char delimiter)
 		return out;
 	}
 
+	void Sequence::parseFastaIntoReads(char * fastaFile)
+	{
+		return std::string();
+	}
+
 
 	void Printer::printToFile(string stringToPrint, std::string relativeFilename)
 	{

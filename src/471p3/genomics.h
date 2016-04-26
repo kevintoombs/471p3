@@ -46,6 +46,7 @@ public:
 	std::string header;
 
 	static std::string Sequence::parseFasta(char *fastaFile);
+	static void Sequence::parseFastaIntoReads(char *fastaFile);
 };
 
 class Printer

@@ -1,26 +1,4 @@
-﻿Build started 4/23/2016 9:29:35 PM.
-     1>Project "C:\Users\guenw\Documents\gitrepos\471p3\src\471p3\471p3.vcxproj" on node 2 (Build target(s)).
-     1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\CL.exe /c /ZI /nologo /W3 /WX- /Od /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"x64\Debug\\" /Fd"x64\Debug\vc140.pdb" /Gd /TP /errorReport:prompt main.cpp
-         main.cpp
-     1>c:\users\guenw\documents\gitrepos\471p3\src\471p3\main.cpp(45): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-     1>c:\program files (x86)\microsoft visual studio 14.0\vc\include\xutility(2811): warning C4996: 'std::_Fill_n': Function call with parameters that may be unsafe - this call relies on the caller to check that the passed values are correct. To disable this warning, use -D_SCL_SECURE_NO_WARNINGS. See documentation on how to use Visual C++ 'Checked Iterators'
-         c:\program files (x86)\microsoft visual studio 14.0\vc\include\xutility(2797): note: see declaration of 'std::_Fill_n'
-         c:\users\guenw\documents\gitrepos\471p3\src\471p3\main.cpp(47): note: see reference to function template instantiation '_OutIt std::fill_n<int*,int,int>(_OutIt,_Diff,const _Ty &)' being compiled
-                 with
-                 [
-                     _OutIt=int *,
-                     _Diff=int,
-                     _Ty=int
-                 ]
-       Link:
-         C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\guenw\Documents\gitrepos\471p3\src\471p3\x64\Debug\471p3.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /Debug /PDB:"C:\Users\guenw\Documents\gitrepos\471p3\src\471p3\x64\Debug\471p3.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\guenw\Documents\gitrepos\471p3\src\471p3\x64\Debug\471p3.lib" /MACHINE:X64 x64\Debug\dynamicTable.obj
-         x64\Debug\genomics.obj
-         x64\Debug\main.obj
-         x64\Debug\suffixTree.obj
-         471p3.vcxproj -> C:\Users\guenw\Documents\gitrepos\471p3\src\471p3\x64\Debug\471p3.exe
-     1>Done Building Project "C:\Users\guenw\Documents\gitrepos\471p3\src\471p3\471p3.vcxproj" (Build target(s)).
-
-Build succeeded.
-
-Time Elapsed 00:00:01.03
+﻿cl : Command line warning D9028: minimal rebuild failure, reverting to normal build
+  main.cpp
+c:\users\kevin\documents\gitrepos\471p3\src\471p3\main.cpp(56): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  471p3.vcxproj -> C:\Users\kevin\Documents\gitrepos\471p3\src\471p3\x64\Debug\471p3.exe

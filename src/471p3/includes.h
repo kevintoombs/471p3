@@ -15,6 +15,7 @@
 #include <tchar.h>
 #include <ctime>
 #include <stdlib.h> 
+#include <list>
 #include <time.h> 
 #include <algorithm>
 #include <map>
