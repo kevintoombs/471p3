@@ -2,13 +2,24 @@
 
 #include "includes.h"
 
+class report
+{
+public:
+	float PercentIdentity;
+	float lengthCoverage;
+	int start;
+	int end;
+
+	report::report(int matches, int alignlen, int l);
+};
+
 class config
 {
 public:
-	int matchScore = 0;
-	int mismatchScore = 0;
-	int startGapScore = 0; //h
-	int continueGapScore = 0; //g
+	int matchScore = 1;
+	int mismatchScore = -2;
+	int startGapScore = -5; //h
+	int continueGapScore = -1; //g
 
 	static config getConfig(int argc, char * argv[]);
 	static config getConfig(std::string fileName);

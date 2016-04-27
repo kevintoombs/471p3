@@ -37,6 +37,7 @@ public:
 	void calcTable();
 	void printTable();
 	void retrace();
+	report retraceP3();
 	int direction(int i, int j);
 	void testDirection(int lastValue, DP_cell to, int dir, int i, int j);
 	void demoTable();
@@ -44,5 +45,6 @@ public:
 	static int maximum(int S, int D, int I, int alignmentType);
 	static int subFunction(char a, char b, config c);
 	static int demo(char* fastaFile, char* configFile, char* typeText);
-	
+	static report align(std::string s1, std::string s2);
+
 };

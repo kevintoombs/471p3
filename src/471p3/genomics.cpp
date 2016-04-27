@@ -142,12 +142,6 @@ Alphabet::Alphabet(char delimiter)
 		return out;
 	}
 
-	void Sequence::parseFastaIntoReads(char * fastaFile)
-	{
-		return std::string();
-	}
-
-
 	void Printer::printToFile(string stringToPrint, std::string relativeFilename)
 	{
 		relativeFilename += ".";
@@ -166,4 +160,10 @@ Alphabet::Alphabet(char delimiter)
 		}
 
 		outFile.close();
+	}
+
+	report::report(int matches, int alignlen, int l)
+	{
+		this->PercentIdentity = (float)matches / (float)alignlen;
+		this->lengthCoverage = (float)alignlen / (float)l;
 	}

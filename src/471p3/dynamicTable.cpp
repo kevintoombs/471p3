@@ -19,6 +19,7 @@ DP_table::DP_table(std::string fasta, std::string config, int type)
 	//retrace();
 }
 
+
 bool DP_table::parseFasta(string fileName)
 {
 	ifstream fasta;
@@ -477,6 +478,110 @@ void DP_table::retrace()
 	return;
 }
 
+report DP_table::retraceP3()
+{
+	int matches = 0, mismatches = 0, gaps = 0, openingGaps = 0;
+	int lastValue = -1;
+	int lastDir = -1;
+	int counter = 0;
+	int i = (int)this->sequence1.length();
+	int j = (int)this->sequence2.length();
+
+	if (this->alightmentType == 1)
+	{
+		i = get<0>(this->maxPair);
+		j = get<1>(this->maxPair);
+	}
+
+
+	//cout << "reverse dirs" << endl;
+	DP_cell c = this->t[i][j];
+	int dirSDI = 0;
+	int max = c.cellMax();
+	if (max == c.S) dirSDI = 1;
+	if (max == c.D) dirSDI = 2;
+	if (max == c.I) dirSDI = 3;
+	int moveDir = c.cellMax2(max, dirSDI);
+	while (i > 0 || j > 0)
+	{
+		if (this->alightmentType == 1 && this->t[i][j].cellMax() == 0)
+		{
+			DP_cell subCell = this->t[i - 1][j - 1];
+			DP_cell deleteCell = this->t[i - 1][j];
+			DP_cell insertCell = this->t[i][j - 1];
+			break;
+		}
+
+		if (moveDir == 1) //s 
+		{
+			j--;
+			i--;
+
+			if (i >= 0 && j >= 0)
+			{
+				if (DP_table::subFunction(this->sequence1[i], this->sequence2[j], this->c) > 0)
+				{
+					matches++;
+				}
+				else
+				{
+					mismatches++;
+				}
+			}
+		}
+		else if (moveDir == 2) //d
+		{
+			i--;
+			if (lastDir == moveDir)
+			{
+				gaps++;
+				//cout << "del" << endl;
+			}
+			else
+			{
+				openingGaps++;
+				gaps++;
+				//cout << "start gap" << endl;
+			}
+		}
+		else if (moveDir == 3) //i
+		{
+			j--;
+			if (lastDir == moveDir)
+			{
+				//cout << "in" << endl;
+				gaps++;
+			}
+			else
+			{
+				openingGaps++;
+				gaps++;
+				//cout << "start gap" << endl;
+			}
+		}
+		lastDir = moveDir;
+
+		//c is the cell we moved into based on where (S/D/I) the cell got its value from
+		c = this->t[i][j];
+
+		//find the appropriate value in this cell based in the dir arrow from the last S/D/I value
+		int find = 0;
+		if (dirSDI == 1) find = c.S;
+		if (dirSDI == 2) find = c.D;
+		if (dirSDI == 3) find = c.I;
+		moveDir = c.cellMax2(find, dirSDI);
+
+		//printf("Moving to %i, for %i\n", moveDir, dirSDI);
+
+	}
+	report r(matches, matches + mismatches + gaps, this->sequence2.length());
+	i = get<0>(this->maxPair);
+	j = get<1>(this->maxPair);
+	r.start = i;
+	r.end = j;
+	return r;
+}
+
 int DP_table::direction(int i, int j)
 {
 	//1 = S, 2 = D, 3 = I 
@@ -553,6 +658,7 @@ int DP_table::demo(char* fastaFile, char* configFile, char* typeText)
 	t.c = config::getConfig(configFile);
 	if (!t.parseFasta(fastaFile))
 	{
+		cout << "Press enter to exit." << endl;
 		cin.ignore();
 		return 1;
 	}
@@ -573,8 +679,21 @@ int DP_table::demo(char* fastaFile, char* configFile, char* typeText)
 
 	//printTable(t);
 	cout << "Press enter to exit." << endl;
-	cin.ignore();
 	return 0;
+}
+
+report DP_table::align(std::string s1, std::string s2)
+{
+	DP_table t;
+	t.setAlignmentType(1);
+	t.c = config();
+	t.sequence1 = s1;
+	t.sequence2 = s2;
+
+	t.buildTable();
+	t.calcTable();
+	report r = t.retraceP3();
+	return r;
 }
 
 void DP_table::demoTable()
@@ -635,25 +754,26 @@ int DP_cell::cellMax2(int find, int &mDir)
 	//printf("cout lol %i", "\n");
 	if (find == this->S && SDI == 1)
 	{
-		cout << "(found " << find << ") ";
+		//cout << "(found " << find << ") ";
 		mDir = this->sDir;
 		return 1;
 	}
 	if (find == this->D && SDI == 2)
 	{
-		cout << "(found " << find << ") ";
+		//cout << "(found " << find << ") ";
 		mDir = this->dDir;
 		return 2;
 	}
 	if (find == this->I && SDI == 3)
 	{
-		cout << "(found " << find << ") ";
+		//cout << "(found " << find << ") ";
 		mDir = this->iDir;
 		return 3;
 	}
 	int r = 12;
 	printf("cout lol %s", "\n");
 	cout << "WHOOPS";
+	cout << "Press enter to exit." << endl;
 	cin.ignore();
 	//exit(3);
 	return -100;

@@ -385,7 +385,6 @@ int McSuffixTree::deep(Node* n)
 		i += n->stringSize;
 		n = n->parent;
 	}
-
 	return i;
 }
 
