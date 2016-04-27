@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
 
 	cout << "Reference genome length: " << ST->s.length() << endl;
 	cout << "Reads: " << NUMREADS << endl;
+	cout << "ms/Read: " << c / NUMREADS << endl;
 	cout << "Average alignments per read: " << (float)NUMALIGNS / (float)NUMREADS << endl;
 	cout << endl;
 
@@ -163,6 +164,8 @@ void align(int i)
 		NUMALIGNS++;
 		report r = DP_table::align(ST->s.substr(start, length), READS[i].seq);
 		
+		//printf("REPORT: %f %f\n", r.lengthCoverage, r.PercentIdentity);
+
 		if (r.lengthCoverage >= bestCoverage)
 		{
 			bestCoverage = r.lengthCoverage;
@@ -185,6 +188,7 @@ void output(int i, int bestStart, int bestEnd)
 	s += " ... ";
 	s += to_string(bestEnd);
 	s += "]\n";
+	cout << s << endl;
 	Printer::printP3(s, PRINTME);
 	return;
 }

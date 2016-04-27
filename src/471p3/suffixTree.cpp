@@ -37,14 +37,11 @@ McSuffixTree::McSuffixTree(char* fasta, char* alphabet)
 	sigma = a;
 	init();
 
-														 //Tree is constructed from the given alphabet and string.
+	//Tree is constructed from the given alphabet and string.
 	unsigned int start = clock();
 	McSuffixTree mST(inputString, a);
 	//cout << "The tree took: " << clock() - start << "ms to build" << endl;
 	//cout << endl;
-
-	
-
 }
 
 void McSuffixTree::demoTree()

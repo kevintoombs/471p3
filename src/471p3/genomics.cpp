@@ -171,7 +171,7 @@ Alphabet::Alphabet(char delimiter)
 	void Printer::printP3(string stringToPrint, std::string relativeFilename)
 	{
 		std::string fName = "MappingResults_";
-		relativeFilename = relativeFilename + fName;
+		relativeFilename = fName + relativeFilename;
 		relativeFilename += ".txt";
 
 		ofstream outFile;
