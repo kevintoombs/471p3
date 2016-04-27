@@ -9,11 +9,13 @@ int PREPARE_NEXTINDEX;
 int MINLENGTH = 25; //25
 Sequence READS[1834925];
 int NUMREADS;
+int NUMALIGNS;
 int A[6000000];
 McSuffixTree* ST;
 Node *DEEPESTNODE;
 int X = 90;
 int Y = 80;
+char*PRINTME;
 
 void PrepareST();
 void mapReads();
@@ -28,7 +30,6 @@ int newFindPath(Node *&N, int i, int read_ptr);
 int main(int argc, char *argv[])
 {
 	unsigned int a = clock();
-	//
 	ST = new McSuffixTree(argv[1], argv[2]);
 	cout << "The tree took: " << clock() - a << "ms to build" << endl;
 
@@ -36,32 +37,22 @@ int main(int argc, char *argv[])
 	PrepareST();
 	cout << "The tree took: " << clock() - b << "ms to prepare" << endl;
 
-	/*for (int i = 0; i < 20; i++)
-	{
-		cout << A[i] << endl;
-		if (A[i] == -1)
-		{
-			break;
-		}
-	}*/
-
+	PRINTME = argv[3];
 	Sequence::parseFastaIntoReads(argv[3]);
-
-	/*for (int i = 0; i < 10; i++)
-	{
-		cout << READS[i].seq << endl;
-	}*/
-
 	unsigned int c = clock();
 	mapReads();
 	cout << "It took: " << clock() - c << "ms to map " << NUMREADS << " reads." << endl;
 	cout << "Final execution time: " << clock() - a << " ms." << endl;
+	cout << endl;
 
+	cout << "Reference genome length: " << ST->s.length() << endl;
+	cout << "Reads: " << NUMREADS << endl;
+	cout << "Average alignments per read: " << (float)NUMALIGNS / (float)NUMREADS << endl;
+	cout << endl;
 
 	cout << "Press enter to exit." << endl;
 	cin.ignore();
 	return 0;
-	
 }
 
 void PrepareST()
@@ -125,61 +116,6 @@ void mapReads()
 	}
 }
 
-void Sequence::parseFastaIntoReads(char * fastaFile)
-{
-	ifstream file(fastaFile);
-	int i = 0;
-	while (file.good())
-	{
-		NUMREADS++;
-		file >> READS[i].header;
-		file >> READS[i].seq;
-		i++;
-	}
-	return;
-}
-
-/*
-Algorithm for FindLoc function (Step 3b):
-
-The goal of this function is to find a longest common substring between an input read r and the reference genome G, 
-and return all its starting positions along the reference genome.  To do this, we will try to reuse as much of the 
-function FindPath() that you wrote for PA2 as possible. The main steps of the method is as follows.
-
-**************** Algorithm for FindLoc function (Step 3b) begin ***********************
-
-// note: throughout this procedure you will never modify anything in the suffix tree. In other words, the suffix tree 
-will be used as read-only.
-
-0. Initializations:
-i) struct node *T = the root of the suffix tree.         // "tree pointer"
-ii) int  read_ptr = 1;                                             // "read pointer" (again, use 0 in your code).
-// Update this pointer as you match up each consecutive character along the read successfully.
-// Don't increment it if you see a mismatch.
-1. Starting at T, find a path below the node T in the tree that spells out as many remaining characters of 
-	r starting from read_ptr. This would be a simple call to the FindPath() routine starting at the root (T) and the 
-	starting index for comparison on the read (read_ptr).
-2. Let say, after some number of successful character comparisons, a mismatch is observed and so the matching path
-	terminates. There are two subcases here. The matching path could either terminate at the end of an edge (case A),
-	or it could terminate be in the middle of an edge (case B). Either way, let u be the internal node last visited 
-	along the matching path. In case A, u will be the node at which this edge ends. For case B, u will be the node from 
-	which this edge spawns off.  If case B, then decrease the value of read_ptr by the number of characters that 
-	successfully matched below u along the edge before you hit a mismatch - i.e., if you matched r characters successfully
-	along an edge below u before you hit a mismatch along that edge, then read_ptr = read_ptr - r. This will effectively 
-	reset the read_ptr back to where it was right after u. (Note, for case A, you don't need to do this since the mismatch 
-	occurred right after visiting node u.)
-3. If the string-depth(u) ≥ x and if the string-depth is the longest seen so far for this read, then store a pointer, 
-	called "deepestNode" to the node u.  We will update this pointer in future iterations if need be.
-4. Now, simply take the suffix link pointer from u to v. Set T=v, and then go back to  step 1, and repeat the process 
-	until you find the next mismatching point and so on.
-5. At some point you will exhaust comparing all characters in your read. That signifies the end of iterations. Exit out 
-	of the while/for loop (from steps 1-4).
-6. Upon exiting the loop, go to the node pointed to by the most up-to-date deepestNode pointer. The suffix ids in the 
-	interval A[deepestNode->start_index] to A[deepestNode->end_index] is to be returned as the candidate list of genomic 
-	positions Li for the read.  (Now, there is a possibility that this node's path-label doesn't really correspond to the 
-	"longest" common substring between the read and genome, but if that happens it will only be slightly shy of the length
-	in practice. So ignore this slight approximation in algorithm and use this algorithm.)
-*/
 void findLoc(int i)
 {
 	Node* N = ST->root;
@@ -205,7 +141,8 @@ void align(int i)
 {
 	if (!DEEPESTNODE)
 	{
-		cout << READS[i].header << " No hit found." << endl;
+		//cout << READS[i].header << " No hit found." << endl;
+		Printer::printP3(READS[i].header + ": No hit found.", PRINTME);
 		return;
 	}
 	config c;
@@ -223,6 +160,7 @@ void align(int i)
 		int start = fmax(A[j] - l, 0);
 		int length = fmin(l * 2 + 1, ST->s.length()-1-start);
 		//cout << A[j] << ST->s[A[j]] << j << "[" << ST->s.substr(start, length) << "]" << start << "/" << length << ", ";
+		NUMALIGNS++;
 		report r = DP_table::align(ST->s.substr(start, length), READS[i].seq);
 		
 		if (r.lengthCoverage >= bestCoverage)
@@ -240,8 +178,14 @@ void align(int i)
 	
 void output(int i, int bestStart, int bestEnd)
 {
-	cout << READS[i].header << " mapped to : G[" << bestStart << " ... " << bestEnd << "]" << endl;
-	
+	//cout << READS[i].header << " mapped to : G[" << bestStart << " ... " << bestEnd << "]" << endl;
+	string s = READS[i].header;
+	s += " mapped to : G[";
+	s += to_string(bestStart);
+	s += " ... ";
+	s += to_string(bestEnd);
+	s += "]\n";
+	Printer::printP3(s, PRINTME);
 	return;
 }
 
@@ -297,4 +241,18 @@ int newFindPath(Node*& T, int I, int read_ptr)
 
 	//if there is no matching child, insert one!
 	return sumI + read_ptr;
+}
+
+void Sequence::parseFastaIntoReads(char * fastaFile)
+{
+	ifstream file(fastaFile);
+	int i = 0;
+	while (file.good())
+	{
+		NUMREADS++;
+		file >> READS[i].header;
+		file >> READS[i].seq;
+		i++;
+	}
+	return;
 }

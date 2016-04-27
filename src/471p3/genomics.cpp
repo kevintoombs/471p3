@@ -167,3 +167,17 @@ Alphabet::Alphabet(char delimiter)
 		this->PercentIdentity = (float)matches / (float)alignlen;
 		this->lengthCoverage = (float)alignlen / (float)l;
 	}
+
+	void Printer::printP3(string stringToPrint, std::string relativeFilename)
+	{
+		std::string fName = "MappingResults_";
+		relativeFilename = relativeFilename + fName;
+		relativeFilename += ".txt";
+
+		ofstream outFile;
+		outFile.open(relativeFilename, ios::app);
+		outFile << stringToPrint;
+		outFile.close();
+	}
+
+	

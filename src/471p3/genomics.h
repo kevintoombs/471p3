@@ -67,4 +67,5 @@ public:
 	int counter = 0;
 
 	void Printer::printToFile(std::string stringToPrint, std::string relativeFilename);
+	static void printP3(std::string stringToPrint, std::string relativeFilename);
 };
