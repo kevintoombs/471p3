@@ -184,10 +184,8 @@ void DP_table::initTable()
 
 void DP_table::calcTable()
 {
-
 	int maxValue = 0;
 	tuple<int, int> maxPair;
-
 	//printf("Calculating Table[rows remaining]:");
 	for (size_t i = 1; i <= this->sequence1.length(); i++)
 	{
@@ -199,37 +197,88 @@ void DP_table::calcTable()
 			DP_cell deleteCell = this->t[i - 1][j];
 			DP_cell insertCell = this->t[i][j - 1];
 
-
 			this->t[i][j].S = maximum(subCell.S + sSub, subCell.D + sSub, subCell.I + sSub, this->alightmentType);
-			if (this->t[i][j].S == subCell.S + sSub) this->t[i][j].sDir = 1;
-			else if (this->t[i][j].S == subCell.D + sSub) this->t[i][j].sDir = 2;
-			else if (this->t[i][j].S == subCell.I + sSub) this->t[i][j].sDir = 3;
-			this->t[i][j].D = maximum
-				(deleteCell.S + this->c.startGapScore + this->c.continueGapScore,
-					deleteCell.D + this->c.continueGapScore,
-					deleteCell.I + this->c.startGapScore + this->c.continueGapScore,
-					this->alightmentType);
-			if (this->t[i][j].D == deleteCell.S + this->c.startGapScore + this->c.continueGapScore) this->t[i][j].dDir = 1;
-			else if (this->t[i][j].D == deleteCell.D + this->c.continueGapScore) this->t[i][j].dDir = 2;
-			else if (this->t[i][j].D == deleteCell.I + this->c.startGapScore + this->c.continueGapScore) this->t[i][j].dDir = 3; //the bug is not here though. (still never called)
-			this->t[i][j].I = maximum
-				(insertCell.S + this->c.startGapScore + this->c.continueGapScore,
+
+			if (this->t[i][j].S == subCell.S + sSub)
+			{
+				this->t[i][j].sDir = 1;
+				this->t[i][j].sLen = subCell.sLen + 1;
+				if (sSub > 0)
+					this->t[i][j].sMatches = subCell.sMatches + 1;
+			}
+			else if (this->t[i][j].S == subCell.D + sSub) 
+			{ 
+				this->t[i][j].sDir = 2; 
+				this->t[i][j].sLen = subCell.dLen + 1;
+				if (sSub > 0)
+					this->t[i][j].sMatches = subCell.dMatches + 1;
+			}
+			else if (this->t[i][j].S == subCell.I + sSub)
+			{
+				this->t[i][j].sDir = 3;
+				this->t[i][j].sLen = subCell.iLen + 1;
+				if (sSub > 0)
+					this->t[i][j].sMatches = subCell.iMatches + 1;
+			}
+			if (this->t[i][j].S == 0)
+			{
+				this->t[i][j].sLen = 0;
+				this->t[i][j].sMatches = 0;
+			}
+
+			this->t[i][j].D = maximum(deleteCell.S + this->c.startGapScore + this->c.continueGapScore,
+				deleteCell.D + this->c.continueGapScore,
+				deleteCell.I + this->c.startGapScore + this->c.continueGapScore,
+				this->alightmentType);
+			if (this->t[i][j].D == deleteCell.S + this->c.startGapScore + this->c.continueGapScore)
+			{
+				this->t[i][j].dDir = 1;
+				this->t[i][j].dLen = deleteCell.sLen + 1;
+			}
+			else if (this->t[i][j].D == deleteCell.D + this->c.continueGapScore)
+			{
+				this->t[i][j].dDir = 2;
+				this->t[i][j].dLen = deleteCell.dLen + 1;
+
+			}
+			else if (this->t[i][j].D == deleteCell.I + this->c.startGapScore + this->c.continueGapScore)
+			{
+				this->t[i][j].dDir = 3; //the bug is not here though. (still never called)
+				this->t[i][j].dLen = deleteCell.iLen + 1;
+
+			}
+			if (this->t[i][j].D == 0)
+			{
+				this->t[i][j].dLen = 0;
+				this->t[i][j].dMatches = 0;
+			}
+
+			this->t[i][j].I = maximum (insertCell.S + this->c.startGapScore + this->c.continueGapScore,
 					insertCell.D + this->c.startGapScore + this->c.continueGapScore, //FIXED//this is a bug lol, but it is like an impossible condition.
-					insertCell.I + this->c.continueGapScore,
-					this->alightmentType);
-			if (this->t[i][j].I == insertCell.S + this->c.startGapScore + this->c.continueGapScore) this->t[i][j].iDir = 1;
-			else if (this->t[i][j].I == insertCell.D + this->c.startGapScore + this->c.continueGapScore) this->t[i][j].iDir = 2; //FIXED//saaaame bug.
-			else if (this->t[i][j].I == insertCell.I + this->c.continueGapScore) this->t[i][j].iDir = 3;
-			// s.i = I + G is above, was I + H before. This bug was so hard to track down for a couple reasons. I'll detail what I think they are.
-			// First. We were taught in class that you put the shorter string as your s2 so that your space complexity is not quadratic.
-			//		My implementation takes almost 4GB's in debug after I implemented retrace (it was 2 before, like Ananth said).
-			//		This means that usually the first input string is longer than the first. Because of that any insertions on 
-			//		String 1 (if it is longer) will have to be matched by AT LEAST 1 MORE DELETION from string 2 in a global alignment.
-			//		A shorter strings score still has to account for those empty, deleted, character... unless start gap penalties are nyah.
-			// Second: It's the last of 3 in a shitty chain of horrible to read if else statements.
-			// Third: my naming convention is just bad! I also should have kept ordering consitant. 
-			// Fourth: It really is just a rare call for the alignment. I can't imagine many cases where we wouldn't just be better off doing a mismatch in the 
-			//		first place. This is shown by the fact that it only caused the final number to be off by %10 in all of those calculations.
+					insertCell.I + this->c.continueGapScore, 
+				this->alightmentType);
+			if (this->t[i][j].I == insertCell.S + this->c.startGapScore + this->c.continueGapScore)
+			{
+				this->t[i][j].iDir = 1;
+				this->t[i][j].iLen = insertCell.sLen + 1;
+			}
+			else if (this->t[i][j].I == insertCell.D + this->c.startGapScore + this->c.continueGapScore)
+			{
+				this->t[i][j].iDir = 2; //FIXED//saaaame bug.
+				this->t[i][j].iLen = insertCell.dLen + 1;
+
+			}
+			else if (this->t[i][j].I == insertCell.I + this->c.continueGapScore)
+			{
+				this->t[i][j].iDir = 3;
+				this->t[i][j].iLen = insertCell.iLen + 1;
+			}
+			if (this->t[i][j].I == 0)
+			{
+				this->t[i][j].iLen = 0;
+				this->t[i][j].iMatches = 0;
+			}
+
 			if (this->alightmentType == 1)
 			{
 				int thisMax = this->t[i][j].cellMax();
@@ -242,8 +291,6 @@ void DP_table::calcTable()
 			}
 		}
 	}
-	//cout << endl << endl;
-
 }
 
 int DP_cell::cellMax()
@@ -333,7 +380,6 @@ void DP_table::retrace()
 		i = get<0>(this->maxPair);
 		j = get<1>(this->maxPair);
 	}
-
 
 	cout << "reverse dirs" << endl;
 	DP_cell c = this->t[i][j];
@@ -647,9 +693,6 @@ int DP_table::direction(int i, int j)
 	return dir;
 }
 
-//DONE: above
-///NEED TO TRANSFER TO DP_TABLE:: below
-
 int DP_table::demo(char* fastaFile, char* configFile, char* typeText)
 {
 
@@ -692,7 +735,18 @@ report DP_table::align(std::string s1, std::string s2)
 
 	t.buildTable();
 	t.calcTable();
-	report r = t.retraceP3();
+	//report r = t.retraceP3();
+
+	int matches = 0, len = 0;
+	int i = get<0>(t.maxPair);
+	int j = get<1>(t.maxPair);
+	DP_cell c = t.t[i][j];
+	int max = c.cellMax();
+	if (max == c.S) { matches = c.sMatches; len = c.sLen; }
+	if (max == c.D) { matches = c.dMatches; len = c.dLen; }
+	if (max == c.I) { matches = c.iMatches; len = c.iLen; }
+	report r(matches, len, s2.length());
+
 	return r;
 }
 
@@ -715,7 +769,6 @@ void DP_table::demoTable()
 	cout << "Press enter to exit." << endl;
 	cin.ignore();
 }
-
 
 //a + b = c
 void DP_table::testDirection(int lastValue, DP_cell to, int dir, int i, int j)

@@ -6,7 +6,7 @@
 using namespace std;
 
 int PREPARE_NEXTINDEX;
-int MINLENGTH = 25; //25
+int MINLENGTH = 15; //25
 Sequence READS[1834925];
 int NUMREADS;
 int NUMALIGNS;
@@ -15,7 +15,9 @@ McSuffixTree* ST;
 Node *DEEPESTNODE;
 int X = 90;
 int Y = 80;
-char*PRINTME;
+ofstream OUT;
+
+int main(int argc, char * argv[]);
 
 void PrepareST();
 void mapReads();
@@ -29,24 +31,32 @@ int newFindPath(Node *&N, int i, int read_ptr);
 
 int main(int argc, char *argv[])
 {
+	OUT.open("MappingResults_fasta.txt", ios::app);
+
 	unsigned int a = clock();
 	ST = new McSuffixTree(argv[1], argv[2]);
-	cout << "The tree took: " << clock() - a << "ms to build" << endl;
+	cout << "The tree took: " << clock() - a << "ms to build including all memory allocation for the program." << endl;
+	
 
 	unsigned int b = clock();
 	PrepareST();
 	cout << "The tree took: " << clock() - b << "ms to prepare" << endl;
 
-	PRINTME = argv[3];
+	unsigned int d = clock();
 	Sequence::parseFastaIntoReads(argv[3]);
+	cout << "It took " << clock() - d << "ms to parse " << NUMREADS << " reads." << endl;
+
+	
 	unsigned int c = clock();
 	mapReads();
+	OUT.close();
 	cout << "It took: " << clock() - c << "ms to map " << NUMREADS << " reads." << endl;
 	cout << "Final execution time: " << clock() - a << " ms." << endl;
 	cout << endl;
 
 	cout << "Reference genome length: " << ST->s.length() << endl;
 	cout << "Reads: " << NUMREADS << endl;
+	cout << "ms/Read: " << c / NUMREADS << endl;
 	cout << "Average alignments per read: " << (float)NUMALIGNS / (float)NUMREADS << endl;
 	cout << endl;
 
@@ -75,9 +85,10 @@ void PrepareST()
 void DFS_PrepareST(Node* T)
 {
 	if (T == NULL) return;
+	T->deep = McSuffixTree::deep(T);
 	if (T->child == NULL) {         // case: T is a leaf node
 		A[PREPARE_NEXTINDEX] = T->suffixID; //suffix ID of this leaf node;
-		if (McSuffixTree::deep(T) >= MINLENGTH) {
+		if (T->deep >= MINLENGTH) {
 			T->start_leaf_index = PREPARE_NEXTINDEX;
 			T->end_leaf_index = PREPARE_NEXTINDEX;
 		}
@@ -89,7 +100,7 @@ void DFS_PrepareST(Node* T)
 	{
 		DFS_PrepareST(T->child);
 		DFS_PrepareST(T->sibling);
-		if (McSuffixTree::deep(T) >= MINLENGTH) {
+		if (T->deep >= MINLENGTH) {
 			Node* u_left = T->child;
 			Node* u_right = lastSibling(T->child);
 			T->start_leaf_index = u_left->start_leaf_index;
@@ -108,11 +119,16 @@ Node* lastSibling(Node* n)
 
 void mapReads()
 {
-	for (int i = 0; i < NUMREADS; i++)
+	for (int i = 0; i < 10000/*NUMREADS*/; i++)
 	{
+		if (i % 100 == 0)cout << "!";
 		//cout << i << "/" << NUMREADS << endl;
+		///unsigned int a = clock();
 		findLoc(i);
+		//cout << "find loc: " << clock() - a << "ms" << endl;
+		//a = clock();
 		align(i);
+		//cout << "align loc: " << clock() - a << "ms" << endl;
 	}
 }
 
@@ -135,14 +151,15 @@ void findLoc(int i)
 		N = N->sL;
 	}
 	return;
+
 }
 
 void align(int i)
 {
 	if (!DEEPESTNODE)
 	{
-		//cout << READS[i].header << " No hit found." << endl;
-		Printer::printP3(READS[i].header + ": No hit found.", PRINTME);
+		//cout << READS[i].header << " No hit found.\n" << endl;
+		OUT << READS[i].header + ": No hit found.\n";
 		return;
 	}
 	config c;
@@ -163,6 +180,8 @@ void align(int i)
 		NUMALIGNS++;
 		report r = DP_table::align(ST->s.substr(start, length), READS[i].seq);
 		
+		//printf("REPORT: %f %f\n", r.lengthCoverage, r.PercentIdentity);
+
 		if (r.lengthCoverage >= bestCoverage)
 		{
 			bestCoverage = r.lengthCoverage;
@@ -173,6 +192,7 @@ void align(int i)
 	}
 	//cout << endl;
 	output(i, bestStart, bestEnd);
+	DEEPESTNODE = NULL;
 	return;
 }
 	
@@ -185,7 +205,7 @@ void output(int i, int bestStart, int bestEnd)
 	s += " ... ";
 	s += to_string(bestEnd);
 	s += "]\n";
-	Printer::printP3(s, PRINTME);
+	OUT << s;
 	return;
 }
 
@@ -212,11 +232,9 @@ int newFindPath(Node*& T, int I, int read_ptr)
 				{
 					//matches sumI + i
 					//at end of read
-
 					return read_ptr + sumI + i;
 				}
 			}
-
 			//if all characters matched
 			if (i == u->stringSize)
 			{
@@ -238,7 +256,6 @@ int newFindPath(Node*& T, int I, int read_ptr)
 			u = u->sibling;
 		}
 	}
-
 	//if there is no matching child, insert one!
 	return sumI + read_ptr;
 }
@@ -247,11 +264,16 @@ void Sequence::parseFastaIntoReads(char * fastaFile)
 {
 	ifstream file(fastaFile);
 	int i = 0;
+	string line;
+
 	while (file.good())
 	{
 		NUMREADS++;
 		file >> READS[i].header;
+		//cout << READS[i].header;
+		//file >> line;
 		file >> READS[i].seq;
+		//cout << READS[i].seq << endl;
 		i++;
 	}
 	return;

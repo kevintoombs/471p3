@@ -10,6 +10,7 @@ public:
 	int stringSize = 0; //where the string ends when added to  startIndex [1.....n]
 	int nodeDepth = 0;
 
+	int deep = 0;
 	int nodeNumber = 0;
 	int suffixID = 0;
 

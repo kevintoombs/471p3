@@ -10,6 +10,8 @@ public:
 	int D = -1147483648;// numeric_limits<int>::min();
 	int I = -1147483648;// numeric_limits<int>::min();
 	int sDir = -1, dDir = -1, iDir = -1;
+	int sMatches = 0, dMatches = 0, iMatches = 0;
+	int sLen = 0, dLen = 0, iLen = 0;
 
 	int cellMax();
 	int cellMax2(int find, int &mDir);

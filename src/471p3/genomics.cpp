@@ -171,11 +171,12 @@ Alphabet::Alphabet(char delimiter)
 	void Printer::printP3(string stringToPrint, std::string relativeFilename)
 	{
 		std::string fName = "MappingResults_";
-		relativeFilename = relativeFilename + fName;
+		relativeFilename = fName + "fasta";
 		relativeFilename += ".txt";
 
 		ofstream outFile;
 		outFile.open(relativeFilename, ios::app);
+
 		outFile << stringToPrint;
 		outFile.close();
 	}
