@@ -735,7 +735,7 @@ report DP_table::align(std::string s1, std::string s2)
 
 	t.buildTable();
 	t.calcTable();
-	report r = t.retraceP3();
+	//report r = t.retraceP3();
 
 	int matches = 0, len = 0;
 	int i = get<0>(t.maxPair);
@@ -745,9 +745,7 @@ report DP_table::align(std::string s1, std::string s2)
 	if (max == c.S) { matches = c.sMatches; len = c.sLen; }
 	if (max == c.D) { matches = c.dMatches; len = c.dLen; }
 	if (max == c.I) { matches = c.iMatches; len = c.iLen; }
-	//r.inlineMAtches = matches;
-	//r.inlineLen = len;
-	//report r(matches, len, s2.length());
+	report r(matches, len, s2.length());
 
 	return r;
 }

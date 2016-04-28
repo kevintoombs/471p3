@@ -1,7 +1,10 @@
-﻿  dynamicTable.cpp
+﻿  main.cpp
+main.cpp(142): warning C4018: '<': signed/unsigned mismatch
+main.cpp(177): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+main.cpp(178): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
   Generating code
-  11 of 478 functions ( 2.3%) were compiled, the rest were copied from previous compilation.
+  14 of 473 functions ( 3.0%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    10 functions had inline decision re-evaluated but remain unchanged
+    34 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   471p3.vcxproj -> C:\Users\kevin\Documents\gitrepos\471p3\src\471p3\Release\471p3.exe
