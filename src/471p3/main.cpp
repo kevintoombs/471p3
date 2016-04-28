@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 
 	cout << "Reference genome length: " << ST->s.length() << endl;
 	cout << "Reads: " << NUMREADS << endl;
-	cout << "ms/Read: " << c / NUMREADS << endl;
+	cout << "ms/Read: " << (float)c / (float)NUMREADS << endl;
 	cout << "Average alignments per read: " << (float)NUMALIGNS / (float)NUMREADS << endl;
 	cout << endl;
 
@@ -119,11 +119,11 @@ Node* lastSibling(Node* n)
 
 void mapReads()
 {
-	for (int i = 0; i < 10000/*NUMREADS*/; i++)
+	for (int i = 0; i < 10000 /*NUMREADS*/; i++)
 	{
 		if (i % 100 == 0)cout << "!";
 		//cout << i << "/" << NUMREADS << endl;
-		///unsigned int a = clock();
+		//unsigned int a = clock();
 		findLoc(i);
 		//cout << "find loc: " << clock() - a << "ms" << endl;
 		//a = clock();
@@ -139,9 +139,20 @@ void findLoc(int i)
 
 	int deepest = 0;
 
+	//unsigned int a = clock();
 	while (read_ptr < READS[i].seq.length())
 	{
-		read_ptr = newFindPath(N, i, read_ptr);
+		//printf("new find path about to be called with %i, %i\n", i, read_ptr);
+		int new_read_ptr = newFindPath(N, i, read_ptr);
+		//printf("new find path returned  with %i\n",new_read_ptr);
+		if (read_ptr == new_read_ptr)
+		{
+			read_ptr++;
+		}
+		else
+			read_ptr = new_read_ptr;
+		
+
 		int deep = McSuffixTree::deep(N);
 		if (deep >= MINLENGTH && deep >= deepest)
 		{
@@ -150,6 +161,7 @@ void findLoc(int i)
 		}
 		N = N->sL;
 	}
+	//cout << "newFindPath loop inside find loc took: " << clock() - a << "ms" << endl;
 	return;
 
 }
@@ -211,10 +223,11 @@ void output(int i, int bestStart, int bestEnd)
 
 int newFindPath(Node*& T, int I, int read_ptr)
 {
+	//printf("new find path called with %i, %i\n", I, read_ptr);
 	//check the children of n
 	Node *u = T->child;
 	string s = ST->s;
-	int sumI = 0;
+ 	int sumI = 0;
 
 	//if n has any children or hasn't run out of possiblities
 	while (u != NULL)
@@ -232,9 +245,11 @@ int newFindPath(Node*& T, int I, int read_ptr)
 				{
 					//matches sumI + i
 					//at end of read
+					//printf("Total matches this time: %i", sumI);
 					return read_ptr + sumI + i;
 				}
 			}
+			sumI += i;
 			//if all characters matched
 			if (i == u->stringSize)
 			{
@@ -243,7 +258,6 @@ int newFindPath(Node*& T, int I, int read_ptr)
 				//set it's first child to the child
 				u = T->child;
 				//note how many matches have been made total.
-				sumI += i;
 			}
 			else //otherwise break the edge that far down.
 			{
@@ -256,7 +270,8 @@ int newFindPath(Node*& T, int I, int read_ptr)
 			u = u->sibling;
 		}
 	}
-	//if there is no matching child, insert one!
+	//if there is no matching child, move on!
+	//printf("Total matches this time: %i", sumI);
 	return sumI + read_ptr;
 }
 
@@ -270,8 +285,8 @@ void Sequence::parseFastaIntoReads(char * fastaFile)
 	{
 		NUMREADS++;
 		file >> READS[i].header;
-		//cout << READS[i].header;
 		//file >> line;
+
 		file >> READS[i].seq;
 		//cout << READS[i].seq << endl;
 		i++;

@@ -1,9 +1,0 @@
-﻿  suffixTree.cpp
-  main.cpp
-c:\users\kevin\documents\gitrepos\471p3\src\471p3\main.cpp(139): warning C4018: '<': signed/unsigned mismatch
-c:\users\kevin\documents\gitrepos\471p3\src\471p3\main.cpp(172): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-c:\users\kevin\documents\gitrepos\471p3\src\471p3\main.cpp(173): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-  genomics.cpp
-  dynamicTable.cpp
-  Generating Code...
-  471p3.vcxproj -> C:\Users\kevin\Documents\gitrepos\471p3\src\471p3\Debug\471p3.exe
